@@ -7,18 +7,18 @@ public class EnemyShooting : MonoBehaviour
     public float bulletForce = 10f;
     public float shootingRange = 10f;
     public float shootingCooldown = 1f;
+    public Transform firePoint; // Expose this variable in the Inspector
 
     private Transform player;
     private bool canShoot = true;
 
     void Start()
     {
-        player = GameObject.FindWithTag("Player").transform; 
+        player = GameObject.FindWithTag("Player").transform;
     }
 
     void Update()
     {
-    
         RotateTowardsPlayer();
 
         if (canShoot && Vector3.Distance(transform.position, player.position) <= shootingRange)
@@ -29,16 +29,11 @@ public class EnemyShooting : MonoBehaviour
 
     void RotateTowardsPlayer()
     {
-       
         Vector3 direction = (player.position - transform.position).normalized;
 
-      
         if (direction != Vector3.zero)
         {
-        
             Quaternion lookRotation = Quaternion.LookRotation(direction);
-
-          
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 90f);
         }
     }
@@ -46,10 +41,17 @@ public class EnemyShooting : MonoBehaviour
     void Shoot()
     {
         canShoot = false;
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+
+        if (firePoint == null)
+        {
+            Debug.LogError("Fire point not assigned for EnemyShooting on " + name);
+            return;
+        }
+
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation); // Use firePoint.rotation
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        rb.velocity = transform.forward * bulletForce; 
-        Destroy(bullet, 2f); 
+        rb.velocity = bullet.transform.forward * bulletForce;
+        Destroy(bullet, 2f);
         StartCoroutine(EnableShootingCooldown());
     }
 
