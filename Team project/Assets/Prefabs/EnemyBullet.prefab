@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5173763588048754127}
   - component: {fileID: 5457362878718078310}
   - component: {fileID: 5407627149139207347}
-  - component: {fileID: 5159663740391074471}
+  - component: {fileID: -6613731526021490703}
   m_Layer: 0
   m_Name: EnemyBullet
   m_TagString: EnemyBullet
@@ -83,7 +83,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!65 &5407627149139207347
 BoxCollider:
@@ -106,7 +106,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.22945213, y: 0.38138008, z: 0.18514347}
   m_Center: {x: -0.008765221, y: 0.15615392, z: 0.0010275841}
---- !u!114 &5159663740391074471
+--- !u!114 &-6613731526021490703
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,7 +115,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1835030686803075028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2a1a90ed6e425d43805b9cc37766525, type: 3}
+  m_Script: {fileID: 11500000, guid: 9dca3094e0d18ca48b6f6e23b152db1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
