@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GunFire : MonoBehaviour
@@ -12,56 +11,58 @@ public class GunFire : MonoBehaviour
 
     private Transform playerTransform;
     private bool isAiming = false;
+    private bool isRightMouseButtonDown = false;
 
     void Start()
     {
-    
         playerTransform = transform;
     }
 
     void Update()
     {
-        
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-
-       
         playerTransform.Rotate(Vector3.up, mouseX);
 
-    
-        if (Input.GetButton("Fire2"))
+
+        if (Input.GetButtonDown("Fire2"))
         {
+            isRightMouseButtonDown = true;
             if (!isAiming)
             {
                 Debug.Log("is aiming");
-                playerAnimator.SetBool("IsAiming", true);
+                playerAnimator.SetBool("Aim", true);
                 isAiming = true;
             }
-
-          
-            if (Input.GetButtonDown("Fire1"))
-            {
-                Shoot();
-            }
         }
-        else
+
+      
+        if (Input.GetButtonUp("Fire2"))
         {
-            if (isAiming)
-            {
-                Debug.Log("is not aiming");
-                playerAnimator.SetBool("IsAiming", false);
-                isAiming = false;
-            }
+            isRightMouseButtonDown = false;
+        }
+
+
+   
+        if (!isRightMouseButtonDown && isAiming)
+        {
+            Debug.Log("is not aiming");
+            playerAnimator.SetBool("Aim", false);
+            isAiming = false;
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Shoot();
+            playerAnimator.SetTrigger("Shoot");
         }
     }
 
     void Shoot()
     {
-       
         if (isAiming)
         {
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 
-         
             Rigidbody rb = bullet.GetComponent<Rigidbody>();
             if (rb != null)
             {

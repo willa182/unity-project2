@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealthManager : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class PlayerHealthManager : MonoBehaviour
     public float flashLength;
     public Color flashColor;
 
-    public Canvas flashCanvas;
+    public Image flashCanvas;
 
     private float flashCounter;
     private Renderer rend;
