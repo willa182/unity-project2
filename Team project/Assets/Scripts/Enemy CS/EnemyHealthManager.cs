@@ -44,8 +44,7 @@ public class EnemyHealthManager : MonoBehaviour
         }
 
         if (currentHealth <= 0)
-        {
-           
+        {      
             Destroy(gameObject);
         }
     }

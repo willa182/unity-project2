@@ -10,9 +10,9 @@ public class DayNightCycle : MonoBehaviour
     public Material nightSkyboxMaterial;
     public float dayDurationInSeconds = 60f;
     public float transitionDurationInSeconds = 5f;
-    public float timeMultiplier = 60f; // Adjust this to control the speed of time
+    public float timeMultiplier = 60f; 
 
-    private float currentTime = 8 * 60 * 60; // Start at 08:00 in seconds (24-hour format)
+    private float currentTime = 8 * 60 * 60;
     private bool isDay = true;
 
     private void Start()
@@ -26,7 +26,7 @@ public class DayNightCycle : MonoBehaviour
 
         if (currentTime >= (19 * 60 * 60) && isDay)
         {
-            // Start transitioning to night at 19:00
+    
             isDay = false;
             StartCoroutine(TransitionDayNight());
             RenderSettings.skybox = nightSkyboxMaterial;
@@ -35,11 +35,11 @@ public class DayNightCycle : MonoBehaviour
 
         if (currentTime >= (24 * 60 * 60))
         {
-            // Reset the timer at 24:00
+        
             currentTime -= 24 * 60 * 60;
         }
 
-        // Set day skybox at 07:59
+  
         if (currentTime >= (7 * 60 * 60) && currentTime < (8 * 60 * 60) && !isDay)
         {
             isDay = true;
@@ -49,7 +49,7 @@ public class DayNightCycle : MonoBehaviour
 
         UpdateTimerText();
 
-        // Rotate the directional light on the X-axis to simulate day/night cycle
+       
         float angle = Mathf.Lerp(0, 180, Mathf.Clamp01(currentTime / (24 * 60 * 60)));
         directionalLight.transform.rotation = Quaternion.Euler(angle, 0, 0);
     }
@@ -57,8 +57,8 @@ public class DayNightCycle : MonoBehaviour
     private IEnumerator TransitionDayNight()
     {
         float t = 0f;
-        Color startColor = Color.white; // Day color
-        Color endColor = Color.black; // Night color
+        Color startColor = Color.white; 
+        Color endColor = Color.black; 
 
         while (t < 1f)
         {

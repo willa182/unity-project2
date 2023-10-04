@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,15 +9,17 @@ public class PlayerHealthManager : MonoBehaviour
     public Color flashColor;
 
     public Image flashCanvas;
+    public Slider healthSlider; 
 
     private float flashCounter;
-    private Renderer rend;
-    private Color storedColor;
 
     void Start()
     {
         currentHealth = startingHealth;
-        flashCanvas.enabled = false; 
+        flashCanvas.enabled = false;
+
+ 
+        UpdateHealthBar();
     }
 
     void Update()
@@ -46,5 +46,17 @@ public class PlayerHealthManager : MonoBehaviour
         flashCounter = flashLength;
         flashCanvas.enabled = true;
 
+    
+        UpdateHealthBar();
+    }
+
+  
+    private void UpdateHealthBar()
+    {
+        if (healthSlider != null)
+        {
+            float healthPercent = (float)currentHealth / startingHealth;
+            healthSlider.value = healthPercent;
+        }
     }
 }

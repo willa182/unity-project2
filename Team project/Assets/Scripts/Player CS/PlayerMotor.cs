@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMotor : MonoBehaviour
 {
@@ -12,17 +12,24 @@ public class PlayerMotor : MonoBehaviour
     public float speed = 5f;
     public float gravity = -9.8f;
     public float jumpHeight = 2f;
+    public float stamina = 100f;
+    public float staminaRegenRate = 5f;
+    public float staminaDepletionRate = 10f; 
+    public Slider staminaSlider;
+
     Animator animator;
 
-    
     private bool Craft; // For walking
     private bool Move;  // For running
+
+    private PlayerHealthManager healthManager;
 
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
+        healthManager = GetComponent<PlayerHealthManager>();
     }
 
     // Update is called once per frame
@@ -30,7 +37,7 @@ public class PlayerMotor : MonoBehaviour
     {
         IsGrounded = Physics.CheckSphere(groundCheck.transform.position, groundCheckRadius, groundMask);
 
-        Move = Input.GetKey(KeyCode.LeftShift);
+        Move = Input.GetKey(KeyCode.LeftShift) && stamina > 0;
 
         animator.SetBool("Move", Move);
 
@@ -42,11 +49,26 @@ public class PlayerMotor : MonoBehaviour
         Craft = Input.GetKey(KeyCode.W) && IsGrounded;
         animator.SetBool("Craft", Craft);
 
-        // Reset Ride bool if not grounded
         if (!IsGrounded)
         {
             animator.SetBool("Ride", false);
         }
+
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
+        {
+            Jump();
+        }
+
+        if (Move && IsGrounded)
+        {
+            DrainStamina();
+        }
+        else
+        {
+            RegenerateStamina();
+        }
+
+        UpdateStaminaUI();
     }
 
     public void ProcessMove(Vector2 input)
@@ -55,7 +77,6 @@ public class PlayerMotor : MonoBehaviour
         moveDirection.x = input.x;
         moveDirection.z = input.y;
 
-       
         float currentSpeed = Move ? speed * 1.5f : speed;
 
         Controller.Move(transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime);
@@ -77,6 +98,31 @@ public class PlayerMotor : MonoBehaviour
         else
         {
             animator.SetBool("Ride", false);
+        }
+    }
+
+    private void DrainStamina()
+    {
+        if (stamina > 0)
+        {
+            stamina -= staminaDepletionRate * Time.deltaTime;
+        }
+    }
+
+    private void RegenerateStamina()
+    {
+        if (!Move && stamina < 100f)
+        {
+            stamina += staminaRegenRate * Time.deltaTime;
+        }
+    }
+
+    private void UpdateStaminaUI()
+    {
+        if (staminaSlider != null)
+        {
+            float staminaPercent = stamina / 100f;
+            staminaSlider.value = staminaPercent;
         }
     }
 }
