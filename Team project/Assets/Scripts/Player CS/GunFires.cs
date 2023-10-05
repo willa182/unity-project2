@@ -46,14 +46,14 @@ public class GunFires : MonoBehaviour
         if (!isRightMouseButtonDown && isAiming)
         {
             Debug.Log("is not aiming");
-            playerAnimator.SetBool("Aim", false);
+            playerAnimator.SetBool("IsAiming", false);
             isAiming = false;
         }
 
         if (Input.GetButtonDown("Fire1"))
         {
             Shoot();
-            playerAnimator.SetTrigger("Shoot");
+            playerAnimator.SetTrigger("IsShooting");
         }
     }
 

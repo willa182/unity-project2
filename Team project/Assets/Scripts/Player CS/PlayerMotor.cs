@@ -39,19 +39,19 @@ public class PlayerMotor : MonoBehaviour
 
         Move = Input.GetKey(KeyCode.LeftShift) && stamina > 0;
 
-        animator.SetBool("Move", Move);
+        animator.SetBool("IsRunning", Move);
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            animator.SetTrigger("Attack");
+            animator.SetTrigger("Melee");
         }
 
         Craft = Input.GetKey(KeyCode.W) && IsGrounded;
-        animator.SetBool("Craft", Craft);
+        animator.SetBool("IsWalking", Craft);
 
         if (!IsGrounded)
         {
-            animator.SetBool("Ride", false);
+            animator.SetBool("IsJumping", false);
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
@@ -93,11 +93,11 @@ public class PlayerMotor : MonoBehaviour
         if (IsGrounded)
         {
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
-            animator.SetBool("Ride", true);
+            animator.SetBool("IsJumping", true);
         }
         else
         {
-            animator.SetBool("Ride", false);
+            animator.SetBool("IsJumping", false);
         }
     }
 
