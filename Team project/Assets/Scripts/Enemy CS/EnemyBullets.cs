@@ -15,7 +15,7 @@ public class EnemyBullets : MonoBehaviour
                 playerHealth.HurtPlayer(damage);
             }
 
-            Destroy(gameObject); // Destroy the bullet when it hits the player.
+            Destroy(gameObject);
         }
     }
 }

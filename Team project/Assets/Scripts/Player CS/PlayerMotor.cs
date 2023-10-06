@@ -21,6 +21,10 @@ public class PlayerMotor : MonoBehaviour
 
     private bool Craft; // For walking
     private bool Move;  // For running
+    private bool StrafeLeft; 
+    private bool StrafeRight;
+
+    private bool isPickupAnimationPlaying = false;
 
     private PlayerHealthManager healthManager;
 
@@ -43,11 +47,27 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            animator.SetTrigger("Melee");
+            animator.SetBool("Melee", true);
+            Invoke("ResetMeleeFlag", 1f);
+        }
+        if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying)
+        {
+            animator.SetBool("PickingUp", true);
+            isPickupAnimationPlaying = true;
+
+            Controller.enabled = false;
+
+            Invoke("ResetPickupFlag", 3f);
         }
 
         Craft = Input.GetKey(KeyCode.W) && IsGrounded;
         animator.SetBool("IsWalking", Craft);
+
+        StrafeLeft = Input.GetKey(KeyCode.A);
+        animator.SetBool("IsStrafingLeft", StrafeLeft);
+
+        StrafeRight = Input.GetKey(KeyCode.D);
+        animator.SetBool("IsStrafingRight", StrafeRight);
 
         if (!IsGrounded)
         {
@@ -70,6 +90,7 @@ public class PlayerMotor : MonoBehaviour
 
         UpdateStaminaUI();
     }
+
 
     public void ProcessMove(Vector2 input)
     {
@@ -124,5 +145,18 @@ public class PlayerMotor : MonoBehaviour
             float staminaPercent = stamina / 100f;
             staminaSlider.value = staminaPercent;
         }
+    }
+
+    void ResetMeleeFlag()
+    {
+        animator.SetBool("Melee", false);
+    }
+
+    void ResetPickupFlag()
+    {
+        animator.SetBool("PickingUp", false);
+        isPickupAnimationPlaying = false;
+
+        Controller.enabled = true;
     }
 }

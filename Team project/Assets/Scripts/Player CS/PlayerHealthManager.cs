@@ -8,6 +8,8 @@ public class PlayerHealthManager : MonoBehaviour
     public float flashLength;
     public Color flashColor;
 
+    Animator animator;
+
     public Image flashCanvas;
     public Slider healthSlider; 
 
@@ -17,8 +19,8 @@ public class PlayerHealthManager : MonoBehaviour
     {
         currentHealth = startingHealth;
         flashCanvas.enabled = false;
+        animator = GetComponent<Animator>();
 
- 
         UpdateHealthBar();
     }
 
@@ -26,7 +28,7 @@ public class PlayerHealthManager : MonoBehaviour
     {
         if (currentHealth <= 0)
         {
-            gameObject.SetActive(false);
+            animator.SetTrigger("Death");
         }
 
         if (flashCounter > 0)

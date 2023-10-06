@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class EnemyHealthManager : MonoBehaviour
@@ -14,8 +15,14 @@ public class EnemyHealthManager : MonoBehaviour
     private Renderer rend;
     private Color storedColor;
 
-    public Slider healthBar; // Reference to the health bar/slider UI
+    public Slider healthBar;
     private RectTransform sliderRectTransform;
+
+    private Transform player;
+    private NavMeshAgent navMeshAgent;
+
+    public float moveSpeed = 5f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -24,11 +31,14 @@ public class EnemyHealthManager : MonoBehaviour
         rend = GetComponent<Renderer>();
         storedColor = rend.material.GetColor("_Color");
 
-        // Initially set the health bar as inactive
+        navMeshAgent = GetComponent<NavMeshAgent>();
         healthBar.gameObject.SetActive(false);
 
-        // Get the RectTransform component from the health bar's slider
+
         sliderRectTransform = healthBar.GetComponent<RectTransform>();
+
+
+        player = GameObject.FindWithTag("Player").transform;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -38,10 +48,10 @@ public class EnemyHealthManager : MonoBehaviour
             int damageAmount = 1;
             HurtEnemy(damageAmount);
 
-            // Activate the health bar when the enemy takes damage
+
             healthBar.gameObject.SetActive(true);
 
-            // Set the maxValue of the slider when it becomes active
+
             healthBar.maxValue = health;
 
             Destroy(other.gameObject);
@@ -60,22 +70,28 @@ public class EnemyHealthManager : MonoBehaviour
             }
         }
 
-        // Check if the enemy still exists
+
         if (currentHealth <= 0)
         {
             Destroy(gameObject);
-            // Disable the health slider when the enemy is destroyed
+
             healthBar.gameObject.SetActive(false);
         }
         else
         {
-            // Update the health bar value
+
             healthBar.value = currentHealth;
 
-            // Ensure the health bar stays above the enemy's head
+
             Vector3 worldPos = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
             Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
             sliderRectTransform.position = screenPoint;
+
+
+            if (flashCounter > 0)
+            {
+                MoveTowardsPlayer();
+            }
         }
     }
 
@@ -88,4 +104,27 @@ public class EnemyHealthManager : MonoBehaviour
             rend.material.SetColor("_Color", Color.black);
         }
     }
+
+    public bool IsFlashing()
+    {
+        return flashCounter > 0;
+    }
+
+    void MoveTowardsPlayer()
+    {
+        if (navMeshAgent != null)
+        {
+            Vector3 directionToPlayer = player.position - transform.position;
+
+            // Remove the distance limitation
+            Vector3 destination = transform.position + directionToPlayer;
+
+            navMeshAgent.SetDestination(destination);
+        }
+        else
+        {
+            Debug.LogError("NavMeshAgent component is missing!");
+        }
+    }
 }
+    
