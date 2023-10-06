@@ -63,6 +63,9 @@ public class PlayerMotor : MonoBehaviour
         Craft = Input.GetKey(KeyCode.W) && IsGrounded;
         animator.SetBool("IsWalking", Craft);
 
+        Craft = Input.GetKey(KeyCode.S) && IsGrounded;
+        animator.SetBool("IsWalkingBWD", Craft);
+
         StrafeLeft = Input.GetKey(KeyCode.A);
         animator.SetBool("IsStrafingLeft", StrafeLeft);
 
