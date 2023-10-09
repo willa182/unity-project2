@@ -11,19 +11,29 @@ public class EnemyMeleeMove : MonoBehaviour
     private Animator animator;
     private bool isChasing = false;
     private EnemyHealthManager healthManager;
+    private PlayerHealthManager playerHealth;
 
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
         animator = GetComponent<Animator>();
         healthManager = GetComponent<EnemyHealthManager>();
+        playerHealth = player.GetComponent<PlayerHealthManager>();
     }
 
     void Update()
     {
+        if (playerHealth != null && playerHealth.currentHealth <= 0)
+        {
+            isChasing = false;
+            SetWalkingAnimation(false);
+            SetRunningAnimation(false);
+            animator.SetBool("IsIdle", true);
+            return;
+        }
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Check if the player has damaged the enemy
         if (healthManager != null && healthManager.IsFlashing())
         {
             MoveTowardsPlayer(runningSpeed);
@@ -58,13 +68,13 @@ public class EnemyMeleeMove : MonoBehaviour
 
         if (!isChasing)
         {
-            // Implement logic for the Idle state
+            // Handle non-chasing behavior maybe in future
         }
     }
 
     void ChasePlayer()
     {
-        // Implement your chasing logic here
+        // Implement chasing behavior maybe in future
     }
 
     void SetWalkingAnimation(bool value)
@@ -82,7 +92,6 @@ public class EnemyMeleeMove : MonoBehaviour
         Vector3 direction = (player.position - transform.position).normalized;
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        // Rotate the enemy to face the player
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
     }

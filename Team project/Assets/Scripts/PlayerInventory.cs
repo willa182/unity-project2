@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,39 +5,207 @@ using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
 {
-    
     public List<string> weaponPrefabNames = new List<string>();
-
-  
     private List<Weapon> weaponsInventory = new List<Weapon>();
-
-   
-    private List<Sprite> quickslotSprites = new List<Sprite>();
+    private List<GameObject> quickslotSlots = new List<GameObject>();
 
     public Transform quickslotUI;
-    public Transform handTransform; 
+    public Transform handTransform;
     private int equippedSlotIndex = -1;
     private int selectedWeaponIndex = -1;
 
-
-    
-    public GameObject slot1;
-    public GameObject slot2;
-    public GameObject slot3;
-
     public KeyCode pickupKey = KeyCode.E;
-    public float pickupDelay = 1f; 
-    private bool canPickup = true; 
+    private bool canPickup = true;
     private GameObject equippedWeaponInstance;
-    private GameObject pickedUpWeaponInstance;
+
+    public Vector3 weaponPosition = new Vector3(-0.000542f, 0.001634f, -0.001138f);
+    public Quaternion weaponRotation = Quaternion.Euler(-142.898f, 168.012f, 22.036f);
+    public Vector3 weaponScale = new Vector3(0.0012f, 0.0012f, 0.0012f);
 
     void Start()
     {
-        slot1 = quickslotUI.Find("Slot1").gameObject;
-        slot2 = quickslotUI.Find("Slot2").gameObject;
-        slot3 = quickslotUI.Find("Slot3").gameObject;
+        InitializeQuickslots();
+        LoadWeaponPrefabs();
+    }
 
- 
+    void Update()
+    {
+        if (Input.GetKeyDown(pickupKey) && canPickup)
+        {
+            TryPickupWeapon();
+        }
+
+        for (int i = 1; i <= quickslotSlots.Count; i++)
+        {
+            KeyCode key = KeyCode.Alpha0 + i;
+            if (Input.GetKeyDown(key))
+            {
+                TryEquipWeapon(i);
+            }
+        }
+
+        if (equippedSlotIndex != -1)
+        {
+            InstantiateWeaponInHand(weaponsInventory[equippedSlotIndex]);
+        }
+    }
+
+    void TryEquipWeapon(int slotIndex)
+    {
+        if (slotIndex > 0 && slotIndex <= weaponsInventory.Count)
+        {
+            selectedWeaponIndex = slotIndex;
+
+            if (selectedWeaponIndex <= weaponsInventory.Count)
+            {
+                UnequipWeapon();
+                InstantiateWeaponInHand(weaponsInventory[selectedWeaponIndex - 1]);
+                UpdateQuickslotUI();
+            }
+            else
+            {
+                Debug.LogError("Selected weapon is not in the inventory!");
+            }
+        }
+        else
+        {
+            Debug.LogError("Invalid slot index: " + slotIndex);
+        }
+    }
+
+    void TryPickupWeapon()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("WeaponPickup"))
+            {
+                Weapon weaponPrefab = collider.GetComponent<Weapon>();
+                if (weaponPrefab != null && weaponsInventory.Count < 3 && !weaponsInventory.Contains(weaponPrefab))
+                {
+                    AddWeapon(weaponPrefab);
+
+                    canPickup = true;
+                    return;
+                }
+            }
+        }
+        canPickup = true;
+    }
+
+    void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
+    {
+        canPickup = false;
+
+        AddWeapon(weaponPrefab);
+
+        DestroyImmediate(weaponObject);
+
+        canPickup = true;
+    }
+
+    void AddWeapon(Weapon weapon)
+    {
+        if (weaponsInventory.Count < 3)
+        {
+            int emptySlotIndex = -1;
+            for (int i = 0; i < weaponsInventory.Count; i++)
+            {
+                if (!weaponsInventory[i].IsPickedUp)
+                {
+                    emptySlotIndex = i;
+                    break;
+                }
+            }
+
+            if (emptySlotIndex == -1)
+            {
+                emptySlotIndex = weaponsInventory.Count;
+            }
+
+            weaponsInventory[emptySlotIndex] = weapon;
+
+            UpdateQuickslotUI();
+        }
+        else
+        {
+            Debug.Log("Quickslots are full!");
+        }
+    }
+
+    void InstantiateWeaponInHand(Weapon selectedWeapon)
+    {
+        UnequipWeapon();
+
+        if (selectedWeapon.IsPickedUp)
+        {
+            GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + selectedWeapon.weaponName);
+
+            if (weaponPrefab != null)
+            {
+                equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
+                equippedWeaponInstance.transform.SetParent(handTransform);
+                equippedWeaponInstance.transform.localPosition = weaponPosition;
+                equippedWeaponInstance.transform.localRotation = weaponRotation;
+                equippedWeaponInstance.transform.localScale = weaponScale;
+
+                UpdateQuickslotUI();
+            }
+            else
+            {
+                Debug.LogError("Failed to load weapon prefab: " + selectedWeapon.weaponName);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Attempted to instantiate a weapon that has not been picked up.");
+        }
+    }
+
+    void UnequipWeapon()
+    {
+        if (equippedWeaponInstance != null)
+        {
+            Destroy(equippedWeaponInstance);
+            equippedSlotIndex = -1;
+            UpdateQuickslotUI();
+        }
+    }
+
+    void UpdateQuickslotUI()
+    {
+        for (int i = 0; i < quickslotSlots.Count; i++)
+        {
+            Image slotImage = quickslotSlots[i].GetComponent<Image>();
+            if (slotImage != null)
+            {
+                if (i == equippedSlotIndex)
+                {
+                    slotImage.sprite = null;
+                }
+                else if (i < weaponsInventory.Count && weaponsInventory[i].IsPickedUp)
+                {
+                    slotImage.sprite = weaponsInventory[i].sprite;
+                }
+                else
+                {
+                    slotImage.sprite = null;
+                }
+            }
+        }
+    }
+
+    void InitializeQuickslots()
+    {
+        foreach (Transform child in quickslotUI)
+        {
+            quickslotSlots.Add(child.gameObject);
+        }
+    }
+
+    void LoadWeaponPrefabs()
+    {
         foreach (string weaponPrefabName in weaponPrefabNames)
         {
             Weapon weaponPrefab = Resources.Load<Weapon>("Weapons/" + weaponPrefabName);
@@ -53,343 +220,10 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(pickupKey))
-        {
-            TryPickupWeapon();
-        }
-
-        for (int i = 1; i <= 3; i++)
-        {
-            KeyCode key = KeyCode.Alpha0 + i;
-            if (Input.GetKeyDown(key))
-            {
-                TryEquipWeapon(i);
-            }
-        }
-
-     
-        if (equippedSlotIndex == selectedWeaponIndex && selectedWeaponIndex != -1)
-        {
-            InstantiateWeaponInHand(weaponsInventory[selectedWeaponIndex - 1]);
-        }
-    }
-
-    void TryEquipWeapon(int slotIndex)
-    {
-        Debug.Log("TryEquipWeapon called for slot: " + slotIndex);
-        if (slotIndex > 0 && slotIndex <= weaponsInventory.Count)
-        {
-            selectedWeaponIndex = slotIndex;
-            Debug.Log("Selected weapon: " + weaponsInventory[selectedWeaponIndex - 1].weaponName);
-            TryEquipPickedUpWeapon();
-        }
-        else
-        {
-            Debug.LogError("Invalid slot index: " + slotIndex);
-        }
-    }
-
-    public void TryEquipPickedUpWeapon()
-    {
-        if (pickedUpWeaponInstance != null)
-        {
-        
-            Destroy(pickedUpWeaponInstance);        
-            
-                Weapon selectedWeapon = weaponsInventory[selectedWeaponIndex - 1];
-                GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + selectedWeapon.weaponName);
-                pickedUpWeaponInstance = Instantiate(weaponPrefab, handTransform);
-               
-            
-                Debug.LogError("Error instantiating weapon: ");
-            
-       
-            pickedUpWeaponInstance.transform.localPosition = Vector3.zero;
-            pickedUpWeaponInstance.transform.localRotation = Quaternion.identity;
-            pickedUpWeaponInstance.transform.localScale = Vector3.one;
-
-           
-            pickedUpWeaponInstance.transform.parent = handTransform;
-
-      
-            equippedSlotIndex = selectedWeaponIndex;
-
-        
-            UpdateQuickslotUI();
-        }
-    }
-
-
-    void InstantiateWeaponInHand(Weapon selectedWeapon)
-    {
-        Debug.Log("InstantiateWeaponInHand called for weapon: " + selectedWeapon.weaponName);
-      
-        UnequipWeapon();
-
-     
-        GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + selectedWeapon.weaponName);
-
-        if (weaponPrefab != null)
-        {
-        
-            equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
-
-        
-            equippedWeaponInstance.transform.localPosition = new Vector3(-0.000542f, 0.001634f, -0.001138f);
-            equippedWeaponInstance.transform.localRotation = Quaternion.Euler(-142.898f, 168.012f, 22.036f);
-
-          
-            equippedWeaponInstance.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-
-         
-            equippedWeaponInstance.transform.parent = handTransform;
-
-        
-            equippedSlotIndex = selectedWeaponIndex; 
-
-        
-            UpdateQuickslotUI();
-        }
-        else
-        {
-            Debug.LogError("Failed to load weapon prefab: " + selectedWeapon.weaponName);
-        }
-    }
-
-
-    void TryPickupWeapon()
-    {
-       
-        if (Input.GetKeyDown(pickupKey))
-        {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
-            Debug.Log("Number of colliders: " + colliders.Length);
-
-            foreach (Collider collider in colliders)
-            {
-                if (collider.CompareTag("WeaponPickup"))
-                {
-                    Weapon weaponPrefab = collider.GetComponent<Weapon>();
-                    if (weaponPrefab != null)
-                    {
-                        if (weaponsInventory.Count < 3 && !weaponsInventory.Contains(weaponPrefab))
-                        {
-                            StartCoroutine(PickupWithDelay(weaponPrefab, collider.gameObject));
-                            return;
-                        }
-                        else
-                        {
-                            Debug.Log("Quickslots are full or weapon is already in inventory!");
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public void HandleWeaponPickup(Weapon weapon)
     {
-        Debug.Log("HandleWeaponPickup called");
-        if (Input.GetKeyDown(pickupKey))
-        {
-            Debug.Log("E is pressed");
-            AddWeapon(weapon);
-
-        
-            Renderer renderer = weapon.GetComponent<Renderer>();
-            Collider collider = weapon.GetComponent<Collider>();
-
-            if (renderer != null)
-                renderer.enabled = false;
-
-            if (collider != null)
-                collider.enabled = false;
-
-      
-            Destroy(weapon.gameObject, 1f);
-
-      
-            UpdateQuickslotUI();
-
-    
-            selectedWeaponIndex = weaponsInventory.Count;
-
-         
-            TryEquipPickedUpWeapon();
-        }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            PlayerInventory playerInventory = other.GetComponent<PlayerInventory>();
-            if (playerInventory != null)
-            {
-            
-                Weapon weaponComponent = GetComponent<Weapon>();
-                if (weaponComponent != null)
-                {
-                    playerInventory.HandleWeaponPickup(weaponComponent);
-                }
-            }
-        }
-    }
-
-
-    IEnumerator PickupWithDelay(Weapon weaponPrefab, GameObject weaponObject)
-    {
-        canPickup = false; 
-        yield return new WaitForSeconds(pickupDelay);
-
-        AddWeapon(weaponPrefab); 
-        Destroy(weaponObject); 
-
-        canPickup = true; 
-    }
-
-    public void AddWeapon(Weapon weapon)
-    {
-        if (weaponsInventory.Count < 3)
-        {
-            weaponsInventory.Add(weapon);
-
-      
-            selectedWeaponIndex = weaponsInventory.Count;
-
-            weapon.IsPickedUp = true;
-
-            UpdateQuickslotUI();
-        }
-        else
-        {
-            Debug.Log("Quickslots are full!");
-        }
-    }
-
-    public void RemoveWeapon(Weapon weapon)
-    {
-        weaponsInventory.Remove(weapon);
+        AddWeapon(weapon);
+        DestroyImmediate(weapon);
         UpdateQuickslotUI();
-    }
-
-    void UpdateQuickslotUI()
-    {
-    
-        ClearSlots();
-
-    
-        for (int i = 0; i < weaponsInventory.Count; i++)
-        {
-            GameObject currentSlot = GetSlot(i);
-
-         
-            Image slotImage = currentSlot.GetComponent<Image>();
-            if (slotImage != null && slotImage.sprite == null)
-            {
-            
-                if (i == equippedSlotIndex)
-                {
-                  
-                    slotImage.sprite = null;
-                }
-                else
-                {
-               
-                    slotImage.sprite = weaponsInventory[i].sprite;
-                }
-
-                break; 
-            }
-        }
-    }
-
-    void ClearSlots()
-    {
-
-        foreach (Transform child in quickslotUI)
-        {
-            Image slotImage = child.GetComponent<Image>();
-            if (slotImage != null)
-            {
-                slotImage.sprite = null; 
-            }
-        }
-
-       
-        quickslotSprites.Clear();
-    }
-
-    GameObject GetSlot(int index)
-    {
-      
-        switch (index)
-        {
-            case 0:
-                return slot1;
-            case 1:
-                return slot2;
-            case 2:
-                return slot3;
-            default:
-                return null;
-        }
-    }
-
-    void EquipWeapon(Weapon selectedWeapon)
-    {
-    
-        UnequipWeapon();
-
-      
-        GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + selectedWeapon.weaponName);
-
-        if (weaponPrefab != null)
-        {
-       
-            equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
-
-       
-            equippedWeaponInstance.transform.localPosition = new Vector3(-0.000542f, 0.001634f, -0.001138f);
-            equippedWeaponInstance.transform.localRotation = Quaternion.Euler(-142.898f, 168.012f, 22.036f);
-            equippedWeaponInstance.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-
-    
-            equippedWeaponInstance.transform.parent = handTransform;
-
-       
-            selectedWeapon.IsPickedUp = true;
-
-     
-            equippedSlotIndex = selectedWeaponIndex;
-
-         
-            UpdateQuickslotUI();
-        }
-        else
-        {
-            Debug.LogError("Failed to load weapon prefab: " + selectedWeapon.weaponName);
-        }
-    }
-
-
-
-    void UnequipWeapon()
-    {
-   
-        if (equippedWeaponInstance != null)
-        {
- 
-            Destroy(equippedWeaponInstance);
-
-          
-            equippedSlotIndex = -1;
-
-         
-            UpdateQuickslotUI();
-        }
     }
 }

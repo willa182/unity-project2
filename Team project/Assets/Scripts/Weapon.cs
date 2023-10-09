@@ -4,14 +4,12 @@ public class Weapon : MonoBehaviour
 {
     public string weaponName;
     public Sprite sprite;
-    public bool IsPickedUp { get;set; } = false;
-
-
     private bool canBePickedUp = false;
+
+    public bool IsPickedUp { get; set; } = false;
 
     void Update()
     {
-      
         if (canBePickedUp && Input.GetKeyDown(KeyCode.E))
         {
             PickUp();
@@ -22,12 +20,7 @@ public class Weapon : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerInventory playerInventory = other.GetComponent<PlayerInventory>();
-            if (playerInventory != null)
-            {
-          
-                canBePickedUp = true;
-            }
+            canBePickedUp = true;
         }
     }
 
@@ -35,22 +28,17 @@ public class Weapon : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerInventory playerInventory = other.GetComponent<PlayerInventory>();
-            if (playerInventory != null)
-            {
-             
-                canBePickedUp = false;
-            }
+            canBePickedUp = false;
         }
     }
 
     void PickUp()
     {
-        Debug.Log("PickUp method called for weapon: " + weaponName);
-      
         PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>();
         if (playerInventory != null)
         {
+          
+            IsPickedUp = true;
             playerInventory.HandleWeaponPickup(this);
         }
     }
