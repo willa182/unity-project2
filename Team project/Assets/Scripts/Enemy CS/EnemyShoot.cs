@@ -11,6 +11,7 @@ public class EnemyShoot : MonoBehaviour
 
     private Transform player;
     private bool canShoot = true;
+    private PlayerHealthManager playerHealth; 
 
     void Start()
     {
@@ -19,13 +20,15 @@ public class EnemyShoot : MonoBehaviour
         {
             Debug.LogError("Fire point not assigned in the inspector!");
         }
+
+        playerHealth = player.GetComponent<PlayerHealthManager>();
     }
 
     void Update()
     {
         RotateTowardsPlayer();
 
-        if (canShoot && Vector3.Distance(transform.position, player.position) <= shootingRange)
+        if (playerHealth != null && playerHealth.currentHealth > 0 && canShoot && Vector3.Distance(transform.position, player.position) <= shootingRange)
         {
             Shoot();
         }

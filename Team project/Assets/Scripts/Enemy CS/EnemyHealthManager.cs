@@ -115,8 +115,6 @@ public class EnemyHealthManager : MonoBehaviour
         if (navMeshAgent != null)
         {
             Vector3 directionToPlayer = player.position - transform.position;
-
-            // Remove the distance limitation
             Vector3 destination = transform.position + directionToPlayer;
 
             navMeshAgent.SetDestination(destination);

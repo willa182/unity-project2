@@ -13,14 +13,15 @@ public class EnemyGunMove : MonoBehaviour
     private Animator animator;
     private NavMeshAgent navMeshAgent;
     private bool isChasing = false;
+    private PlayerHealthManager playerHealth; 
 
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
         animator = GetComponent<Animator>();
         navMeshAgent = GetComponent<NavMeshAgent>();
+        playerHealth = player.GetComponent<PlayerHealthManager>();
 
-        // Ensure that NavMeshAgent is attached
         if (!navMeshAgent)
         {
             Debug.LogError("NavMeshAgent component is missing!");
@@ -29,23 +30,29 @@ public class EnemyGunMove : MonoBehaviour
 
     void Update()
     {
+        if (playerHealth && playerHealth.currentHealth <= 0)
+        {
+            isChasing = false;
+            SetRunningAnimation(false);
+            SetShootingAnimation(false);
+            StopMovement();
+            animator.SetBool("IsIdle", true);
+            return;
+        }
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= firingRange)
         {
-            // Player is within firing range, stop moving and start shooting
             isChasing = false;
             SetRunningAnimation(false);
             SetShootingAnimation(true);
             StopMovement();
-            // Add logic to handle shooting behavior here
 
-            // For example, you might use a coroutine to simulate shooting duration
             StartCoroutine(StopShootingAfterDuration());
         }
         else if (distanceToPlayer <= chaseRange)
         {
-            // Player is within chase range but outside firing range
             isChasing = true;
             SetRunningAnimation(true);
             SetShootingAnimation(false);
@@ -53,7 +60,6 @@ public class EnemyGunMove : MonoBehaviour
         }
         else
         {
-            // Player is outside chase range
             isChasing = false;
             SetRunningAnimation(false);
             SetShootingAnimation(false);
@@ -81,15 +87,11 @@ public class EnemyGunMove : MonoBehaviour
 
     IEnumerator StopShootingAfterDuration()
     {
-        // Wait for the shooting duration and then stop shooting
         yield return new WaitForSeconds(shootingDuration);
 
-        // Add logic to stop shooting here
         SetShootingAnimation(false);
-        // You might add additional logic here, such as transitioning to idle or moving towards the player again
     }
 
-    // Helper methods to set animator parameters
     void SetRunningAnimation(bool value)
     {
         animator.SetBool("IsRunning", value);

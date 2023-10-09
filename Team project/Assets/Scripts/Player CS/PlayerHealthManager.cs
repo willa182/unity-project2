@@ -11,9 +11,10 @@ public class PlayerHealthManager : MonoBehaviour
     Animator animator;
 
     public Image flashCanvas;
-    public Slider healthSlider; 
+    public Slider healthSlider;
 
     private float flashCounter;
+    private bool isDead = false; 
 
     void Start()
     {
@@ -26,8 +27,9 @@ public class PlayerHealthManager : MonoBehaviour
 
     void Update()
     {
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead) 
         {
+            isDead = true; 
             animator.SetTrigger("Death");
         }
 
@@ -44,15 +46,22 @@ public class PlayerHealthManager : MonoBehaviour
 
     public void HurtPlayer(int damageAmount)
     {
-        currentHealth -= damageAmount;
-        flashCounter = flashLength;
-        flashCanvas.enabled = true;
+        if (!isDead) 
+        {
+            currentHealth -= damageAmount;
+            flashCounter = flashLength;
+            flashCanvas.enabled = true;
 
-    
-        UpdateHealthBar();
+            UpdateHealthBar();
+
+            if (currentHealth <= 0)
+            {
+                isDead = true;
+                animator.SetTrigger("Death");
+            }
+        }
     }
 
-  
     private void UpdateHealthBar()
     {
         if (healthSlider != null)
