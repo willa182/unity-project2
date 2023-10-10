@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class GunFires : MonoBehaviour
@@ -6,42 +5,45 @@ public class GunFires : MonoBehaviour
     public Transform firePoint;
     public GameObject bulletPrefab;
     public float bulletForce = 10f;
-    public float mouseSensitivity = 2.0f;
     public Animator playerAnimator;
+    public float mouseSensitivity = 2.0f;
 
-    private Transform playerTransform;
     private bool isAiming = false;
-    private bool isRightMouseButtonDown = false;
+    private PlayerLook playerLook;
 
     void Start()
     {
-        playerTransform = transform;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        playerLook = GetComponent<PlayerLook>();
+        if (playerLook == null)
+        {
+            Debug.LogError("PlayerLook script not found on the same GameObject.");
+        }
     }
 
     void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        playerTransform.Rotate(Vector3.up, mouseX);
-
         if (Input.GetButtonDown("Fire2"))
         {
-            isRightMouseButtonDown = true;
             if (!isAiming)
             {
                 Debug.Log("is aiming");
                 playerAnimator.SetBool("IsAiming", true);
                 isAiming = true;
+                playerLook.SetAiming(true); // Start aiming
             }
         }
 
         if (Input.GetButtonUp("Fire2"))
         {
-            isRightMouseButtonDown = false;
             if (isAiming)
             {
                 Debug.Log("is not aiming");
                 playerAnimator.SetBool("IsAiming", false);
                 isAiming = false;
+                playerLook.SetAiming(false); // Stop aiming
             }
         }
 
@@ -52,6 +54,7 @@ public class GunFires : MonoBehaviour
                 Debug.Log("is shooting");
                 Shoot();
                 playerAnimator.SetTrigger("IsShooting");
+                playerLook.SetAiming(false); // Stop aiming when shooting
             }
         }
     }
@@ -59,13 +62,11 @@ public class GunFires : MonoBehaviour
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.AddForce(firePoint.forward * bulletForce, ForceMode.Impulse);
         }
-
         Destroy(bullet, 2.0f);
     }
 }

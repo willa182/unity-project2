@@ -223,7 +223,7 @@ public class PlayerInventory : MonoBehaviour
     public void HandleWeaponPickup(Weapon weapon)
     {
         AddWeapon(weapon);
-        DestroyImmediate(weapon);
+        DestroyImmediate(weapon.gameObject);
         UpdateQuickslotUI();
     }
 }
