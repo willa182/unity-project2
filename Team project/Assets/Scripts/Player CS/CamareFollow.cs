@@ -2,17 +2,31 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform player; // Reference to the player's Transform component.
-    public float smoothSpeed = 0.125f; // Adjust this to control the camera's smoothness.
-    public float distanceFromPlayer = 5f; // Adjust this to control the camera's distance from the player.
+    public Transform player;
+    public float smoothSpeed = 0.125f;
+    public float distanceFromPlayer = 5f;
+    public float initialRotationX = 50f; // If needed, you can adjust this value
+
     private Vector3 offset;
 
     private void Start()
     {
         offset = transform.position - player.position;
+
+        // Set the initial rotation on the X-axis
+        transform.localRotation = Quaternion.Euler(initialRotationX, 0, 0);
+
+        // Set the desired position and rotation
+        transform.position = new Vector3(-30, 15, -11);
+        transform.rotation = Quaternion.Euler(40, 0, 0);
     }
 
     private void LateUpdate()
+    {
+        FollowPlayer();
+    }
+
+    private void FollowPlayer()
     {
         // Calculate the desired position of the camera.
         Vector3 desiredPosition = player.position - player.forward * distanceFromPlayer + Vector3.up * offset.y;

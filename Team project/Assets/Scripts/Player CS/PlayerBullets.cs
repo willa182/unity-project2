@@ -17,5 +17,10 @@ public class PlayerBullets : MonoBehaviour
 
             Destroy(gameObject); // Destroy the bullet when it hits the player.
         }
+        else if (other.CompareTag("Object"))
+        {
+            // Destroy the bullet when it hits an object with the "Object" tag
+            Destroy(gameObject);
+        }
     }
 }

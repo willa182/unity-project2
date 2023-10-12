@@ -10,6 +10,12 @@ TagManager:
   - Bullet
   - Ground
   - WeaponPickup
+  - Weapon
+  - SecondCamera
+  - BulletSpawn
+  - LevelPart
+  - Dummie
+  - Object
   layers:
   - Default
   - TransparentFX

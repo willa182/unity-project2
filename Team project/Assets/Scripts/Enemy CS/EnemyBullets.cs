@@ -17,5 +17,10 @@ public class EnemyBullets : MonoBehaviour
 
             Destroy(gameObject);
         }
+        else if (other.CompareTag("Object"))
+        {
+            // Destroy the bullet when it hits an object with the "Object" tag
+            Destroy(gameObject);
+        }
     }
 }

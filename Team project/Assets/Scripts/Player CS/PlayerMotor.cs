@@ -14,18 +14,17 @@ public class PlayerMotor : MonoBehaviour
     public float jumpHeight = 2f;
     public float stamina = 100f;
     public float staminaRegenRate = 5f;
-    public float staminaDepletionRate = 10f; 
+    public float staminaDepletionRate = 10f;
     public Slider staminaSlider;
 
     Animator animator;
 
     private bool Craft; // For walking
     private bool Move;  // For running
-    private bool StrafeLeft; 
+    private bool StrafeLeft;
     private bool StrafeRight;
 
     private bool isPickupAnimationPlaying = false;
-
     private PlayerHealthManager healthManager;
 
     // Start is called before the first frame update
@@ -163,3 +162,5 @@ public class PlayerMotor : MonoBehaviour
         Controller.enabled = true;
     }
 }
+
+

@@ -8,6 +8,9 @@ public class PlayerHealthManager : MonoBehaviour
     public float flashLength;
     public Color flashColor;
 
+    private CharacterController characterController;
+    private PlayerLook mousemovement;
+
     Animator animator;
 
     public Image flashCanvas;
@@ -18,6 +21,8 @@ public class PlayerHealthManager : MonoBehaviour
 
     void Start()
     {
+        characterController = GetComponent<CharacterController>();
+        mousemovement = GetComponent<PlayerLook>();
         currentHealth = startingHealth;
         flashCanvas.enabled = false;
         animator = GetComponent<Animator>();
@@ -31,6 +36,12 @@ public class PlayerHealthManager : MonoBehaviour
         {
             isDead = true; 
             animator.SetTrigger("Death");
+
+            if (characterController != null)
+            {
+                characterController.enabled = false;
+                mousemovement.enabled = false;
+            }
         }
 
         if (flashCounter > 0)
@@ -58,6 +69,12 @@ public class PlayerHealthManager : MonoBehaviour
             {
                 isDead = true;
                 animator.SetTrigger("Death");
+
+                if (characterController != null)
+                {
+                    characterController.enabled = false;
+                    mousemovement.enabled = false;
+                }
             }
         }
     }
