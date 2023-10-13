@@ -1992,14 +1992,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4590659362563410497}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.21757108, y: -0.037425827, z: 0.16534398, w: 0.9612094}
+  m_LocalRotation: {x: -0.61908954, y: 0.2095679, z: 0.15520492, w: 0.7407569}
   m_LocalPosition: {x: 0.5946612, y: 1.0077604, z: -0.020211339}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2976993500644445868}
   m_Father: {fileID: 2014362712823781771}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -79.186, y: 39.092, z: -9.06}
 --- !u!137 &1144702495760316984
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -3745,8 +3745,8 @@ MonoBehaviour:
   firePoint: {fileID: 7079727394541032647}
   bulletPrefab: {fileID: 4304678658926897515, guid: 501bc32de600f6448b084e3716d31c2a, type: 3}
   bulletForce: 80
-  mouseSensitivity: 4
   playerAnimator: {fileID: 6369709696817918252}
+  mouseSensitivity: 4
 --- !u!1 &8942501697182130314
 GameObject:
   m_ObjectHideFlags: 0
