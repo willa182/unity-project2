@@ -1,4 +1,5 @@
 using UnityEngine;
+using static PlayerInventory;
 
 public class Weapon : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class Weapon : MonoBehaviour
     private bool canBePickedUp = false;
 
     public bool IsPickedUp { get; set; } = false;
+    public WeaponTransformSettings transformSettings;
 
     void Update()
     {

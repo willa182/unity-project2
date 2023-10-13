@@ -16,8 +16,10 @@ public class PlayerMotor : MonoBehaviour
     public float staminaRegenRate = 5f;
     public float staminaDepletionRate = 10f;
     public Slider staminaSlider;
+    private bool IsIdle;
 
     Animator animator;
+    GunFires gunFires;
 
     private bool Craft; // For walking
     private bool Move;  // For running
@@ -33,6 +35,12 @@ public class PlayerMotor : MonoBehaviour
         animator = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
         healthManager = GetComponent<PlayerHealthManager>();
+
+        gunFires = GetComponent<GunFires>();
+        if (gunFires == null)
+        {
+            Debug.LogError("GunFires script not found on the same GameObject.");
+        }
     }
 
     // Update is called once per frame
@@ -41,29 +49,61 @@ public class PlayerMotor : MonoBehaviour
         IsGrounded = Physics.CheckSphere(groundCheck.transform.position, groundCheckRadius, groundMask);
 
         Move = Input.GetKey(KeyCode.LeftShift) && stamina > 0;
-
         animator.SetBool("IsRunning", Move);
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKey(KeyCode.W) && IsGrounded)
+        {
+            Craft = true;
+            animator.SetBool("IsWalking", Craft);
+            gunFires.SetAimingState(false);
+        }
+        else
+        {
+            Craft = false;
+            animator.SetBool("IsWalking", Craft);
+            if (IsIdle && Input.GetButton("Fire2"))
+            {
+                gunFires.SetAimingState(true);
+                animator.SetBool("IsAiming", true);
+            }
+            else
+            {
+                gunFires.SetAimingState(false);
+                animator.SetBool("IsAiming", false);
+            }
+        }
+
+        if (Input.GetKey(KeyCode.S) && IsGrounded)
+        {
+            Craft = true;
+            animator.SetBool("isWalkingBackward", Craft);
+            gunFires.SetAimingState(false);
+        }
+        else
+        {
+            Craft = false;
+            animator.SetBool("isWalkingBackward", Craft);
+            gunFires.SetAimingState(true);
+        }
+
+        IsIdle = !Move && !Craft && !StrafeLeft && !StrafeRight;
+        gunFires.SetIdleState(IsIdle);
+
+        if (Input.GetKeyDown(KeyCode.F) && IsIdle)
         {
             animator.SetBool("Melee", true);
             Invoke("ResetMeleeFlag", 1f);
         }
         if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying)
         {
+            Debug.Log("PickingUp animation triggered.");
             animator.SetBool("PickingUp", true);
             isPickupAnimationPlaying = true;
 
             Controller.enabled = false;
 
-            Invoke("ResetPickupFlag", 3f);
+            Invoke("ResetPickupFlag", 0.01f);
         }
-
-        Craft = Input.GetKey(KeyCode.W) && IsGrounded;
-        animator.SetBool("IsWalking", Craft);
-
-        Craft = Input.GetKey(KeyCode.S) && IsGrounded;
-        animator.SetBool("IsWalkingBWD", Craft);
 
         StrafeLeft = Input.GetKey(KeyCode.A);
         animator.SetBool("IsStrafingLeft", StrafeLeft);
@@ -115,8 +155,12 @@ public class PlayerMotor : MonoBehaviour
     {
         if (IsGrounded)
         {
-            playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
-            animator.SetBool("IsJumping", true);
+            // Check if the player is moving forward or standing idle
+            if ((Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D)) || IsIdle)
+            {
+                playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+                animator.SetBool("IsJumping", true);
+            }
         }
         else
         {
@@ -151,7 +195,10 @@ public class PlayerMotor : MonoBehaviour
 
     void ResetMeleeFlag()
     {
-        animator.SetBool("Melee", false);
+        if (IsIdle)
+        {
+            animator.SetBool("Melee", false);
+        }
     }
 
     void ResetPickupFlag()

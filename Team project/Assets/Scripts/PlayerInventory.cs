@@ -18,9 +18,13 @@ public class PlayerInventory : MonoBehaviour
     private bool canPickup = true;
     private GameObject equippedWeaponInstance;
 
-    public Vector3 weaponPosition = new Vector3(-0.000542f, 0.001634f, -0.001138f);
-    public Quaternion weaponRotation = Quaternion.Euler(-142.898f, 168.012f, 22.036f);
-    public Vector3 weaponScale = new Vector3(0.0012f, 0.0012f, 0.0012f);
+    [System.Serializable]
+    public class WeaponTransformSettings
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
+    }
 
     void Start()
     {
@@ -100,7 +104,7 @@ public class PlayerInventory : MonoBehaviour
 
         AddWeapon(weaponPrefab);
 
-        DestroyImmediate(weaponObject);
+        Destroy(weaponObject, 1f);
 
         canPickup = true;
     }
@@ -146,9 +150,11 @@ public class PlayerInventory : MonoBehaviour
             {
                 equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
                 equippedWeaponInstance.transform.SetParent(handTransform);
-                equippedWeaponInstance.transform.localPosition = weaponPosition;
-                equippedWeaponInstance.transform.localRotation = weaponRotation;
-                equippedWeaponInstance.transform.localScale = weaponScale;
+
+                // Use the new transform settings
+                equippedWeaponInstance.transform.localPosition = selectedWeapon.transformSettings.position;
+                equippedWeaponInstance.transform.localRotation = selectedWeapon.transformSettings.rotation;
+                equippedWeaponInstance.transform.localScale = selectedWeapon.transformSettings.scale;
 
                 UpdateQuickslotUI();
             }
