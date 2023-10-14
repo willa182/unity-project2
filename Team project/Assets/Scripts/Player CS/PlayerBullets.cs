@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerBullets : MonoBehaviour
 {
-    public int damage = 1; // Adjust the damage amount as needed.
+    public int damage = 1; 
 
     private void OnTriggerEnter(Collider other)
     {
@@ -15,11 +15,10 @@ public class PlayerBullets : MonoBehaviour
                 enemyHealth.HurtEnemy(damage);
             }
 
-            Destroy(gameObject); // Destroy the bullet when it hits the player.
+            Destroy(gameObject); 
         }
         else if (other.CompareTag("Object"))
         {
-            // Destroy the bullet when it hits an object with the "Object" tag
             Destroy(gameObject);
         }
     }

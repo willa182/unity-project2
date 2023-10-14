@@ -13,7 +13,7 @@ public class DayNightCycle : MonoBehaviour
     public float transitionDurationInSeconds = 5f;
     public float timeMultiplier = 60f;
 
-    public List<Light> spotlights; // Add this line
+    public List<Light> spotlights;
 
     private float currentTime = 8 * 60 * 60;
     private bool isDay = true;
@@ -33,7 +33,7 @@ public class DayNightCycle : MonoBehaviour
             StartCoroutine(TransitionDayNight());
             RenderSettings.skybox = nightSkyboxMaterial;
             directionalLight.enabled = false;
-            SetSpotlightsActive(true); // Enable spotlights
+            SetSpotlightsActive(true);
         }
 
         if (currentTime >= (24 * 60 * 60))
@@ -46,7 +46,7 @@ public class DayNightCycle : MonoBehaviour
             isDay = true;
             RenderSettings.skybox = daySkyboxMaterial;
             directionalLight.enabled = true;
-            SetSpotlightsActive(false); // Disable spotlights
+            SetSpotlightsActive(false); 
         }
 
         UpdateTimerText();

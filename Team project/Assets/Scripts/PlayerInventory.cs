@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -109,33 +108,25 @@ public class PlayerInventory : MonoBehaviour
         canPickup = true;
     }
 
-    void AddWeapon(Weapon weapon)
+    public void AddWeapon(Weapon weapon)
     {
-        if (weaponsInventory.Count < 3)
+        int emptySlotIndex = weaponsInventory.FindIndex(w => !w.IsPickedUp);
+
+        if (emptySlotIndex != -1)
         {
-            int emptySlotIndex = -1;
-            for (int i = 0; i < weaponsInventory.Count; i++)
-            {
-                if (!weaponsInventory[i].IsPickedUp)
-                {
-                    emptySlotIndex = i;
-                    break;
-                }
-            }
-
-            if (emptySlotIndex == -1)
-            {
-                emptySlotIndex = weaponsInventory.Count;
-            }
-
             weaponsInventory[emptySlotIndex] = weapon;
-
-            UpdateQuickslotUI();
+        }
+        else if (weaponsInventory.Count < 3)
+        {
+            weaponsInventory.Add(weapon);
         }
         else
         {
             Debug.Log("Quickslots are full!");
+            return;
         }
+
+        UpdateQuickslotUI();
     }
 
     void InstantiateWeaponInHand(Weapon selectedWeapon)
@@ -151,7 +142,7 @@ public class PlayerInventory : MonoBehaviour
                 equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
                 equippedWeaponInstance.transform.SetParent(handTransform);
 
-                // Use the new transform settings
+     
                 equippedWeaponInstance.transform.localPosition = selectedWeapon.transformSettings.position;
                 equippedWeaponInstance.transform.localRotation = selectedWeapon.transformSettings.rotation;
                 equippedWeaponInstance.transform.localScale = selectedWeapon.transformSettings.scale;

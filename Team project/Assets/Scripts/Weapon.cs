@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using static PlayerInventory;
 
@@ -39,9 +40,16 @@ public class Weapon : MonoBehaviour
         PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>();
         if (playerInventory != null)
         {
-          
             IsPickedUp = true;
-            playerInventory.HandleWeaponPickup(this);
+            playerInventory.AddWeapon(this);
+
+            StartCoroutine(DestroyWeaponDelayed());
         }
+    }
+
+    IEnumerator DestroyWeaponDelayed()
+    {
+        yield return new WaitForSeconds(2.0f); 
+        Destroy(gameObject); 
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyBullets : MonoBehaviour
 {
-    public int damage = 1; // Adjust the damage amount as needed.
+    public int damage = 1;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -19,7 +19,6 @@ public class EnemyBullets : MonoBehaviour
         }
         else if (other.CompareTag("Object"))
         {
-            // Destroy the bullet when it hits an object with the "Object" tag
             Destroy(gameObject);
         }
     }

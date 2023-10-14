@@ -16,6 +16,9 @@ TagManager:
   - LevelPart
   - Dummie
   - Object
+  - Pistol
+  - Shotgun
+  - Rifle
   layers:
   - Default
   - TransparentFX

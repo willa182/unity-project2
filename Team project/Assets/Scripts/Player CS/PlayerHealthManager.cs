@@ -13,6 +13,7 @@ public class PlayerHealthManager : MonoBehaviour
     private PlayerMotor playerMotor;
     private GunFires gunFire;
     private PlayerInventory playerInventory;
+    private InputManager inputManager;
 
     Animator animator;
 
@@ -29,6 +30,7 @@ public class PlayerHealthManager : MonoBehaviour
         playerMotor = GetComponent<PlayerMotor>();
         gunFire = GetComponent<GunFires>();
         playerInventory = GetComponent<PlayerInventory>();
+        inputManager = GetComponent<InputManager>();
         currentHealth = startingHealth;
         flashCanvas.enabled = false;
         animator = GetComponent<Animator>();
@@ -50,6 +52,7 @@ public class PlayerHealthManager : MonoBehaviour
                 playerInventory.enabled = false;
                 playerMotor.enabled = false;
                 gunFire.enabled = false;
+                inputManager.enabled = false;
             }
         }
 
@@ -86,6 +89,7 @@ public class PlayerHealthManager : MonoBehaviour
                     playerInventory.enabled = false;
                     playerMotor.enabled = false;
                     gunFire.enabled = false;
+                    inputManager.enabled = false;
                 }
             }
         }

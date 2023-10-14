@@ -1,15 +1,18 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GunFires : MonoBehaviour
 {
     public Transform firePoint;
-    public GameObject bulletPrefab;
     public float bulletForce = 10f;
     public Animator playerAnimator;
     public float mouseSensitivity = 2.0f;
 
-    private bool isIdle = true; // New variable to track if the player is idle
-    private bool isAiming = false; // Track if the player is aiming
+    public GameObject bulletPrefab; 
+
+    private bool isIdle = true;
+    private bool isAiming = false;
     private PlayerLook playerLook;
 
     void Start()
@@ -28,26 +31,17 @@ public class GunFires : MonoBehaviour
 
     void Update()
     {
-        // Check if the player is aiming before allowing shooting
-        if (isAiming)
+        if (isAiming && Input.GetButtonDown("Fire1"))
         {
-            // Check if shooting and the button for shooting is pressed
-            if (Input.GetButtonDown("Fire1"))
-            {
-                Debug.Log("is shooting");
-                Shoot();
-                playerAnimator.SetTrigger("IsShooting");
-
-                // Stop aiming when shooting
-                SetAimingState(false);
-            }
+            Debug.Log("is shooting");
+            Shoot();
+            playerAnimator.SetTrigger("IsShooting");
+            SetAimingState(false);
         }
         else
         {
-            // Check if the player can shoot without aiming when moving
             bool canShootWithoutAiming = !isAiming && IsMoving();
 
-            // Check if shooting without aiming and the button for shooting is pressed
             if (canShootWithoutAiming && Input.GetButtonDown("Fire1"))
             {
                 Debug.Log("is shooting without aiming");
@@ -59,31 +53,51 @@ public class GunFires : MonoBehaviour
 
     void Shoot()
     {
+        Debug.Log("Before Instantiate: " + bulletPrefab.name);
+
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        if (rb != null)
+
+        if (bullet != null)
         {
-            rb.AddForce(firePoint.forward * bulletForce, ForceMode.Impulse);
+            Debug.Log("Bullet instantiated successfully");
+
+            Rigidbody rb = bullet.GetComponent<Rigidbody>();
+
+            if (rb != null)
+            {
+                rb.AddForce(firePoint.forward * bulletForce, ForceMode.Impulse);
+            }
+            else
+            {
+                Debug.LogError("Rigidbody not found on the bullet");
+            }
+
+            StartCoroutine(DestroyBulletDelayed(bullet, 2.0f));
         }
-        Destroy(bullet, 2.0f);
+        else
+        {
+            Debug.LogError("Bullet instantiation failed");
+        }
     }
 
-    // Add a public method to set the idle state from other scripts
+    IEnumerator DestroyBulletDelayed(GameObject bullet, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(bullet);
+    }
+
+
     public void SetIdleState(bool isIdleState)
     {
         isIdle = isIdleState;
     }
 
-    // Add a public method to set the aiming state from other scripts
     public void SetAimingState(bool isAimingState)
     {
         isAiming = isAimingState;
-
-        // Start aiming or stop aiming based on the new state
         playerLook.SetAiming(isAiming);
     }
 
-    // Helper method to check if the player is moving
     private bool IsMoving()
     {
         return Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);

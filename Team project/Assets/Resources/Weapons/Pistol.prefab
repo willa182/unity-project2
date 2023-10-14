@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1283146077990963767}
   m_Layer: 7
   m_Name: Pistol
-  m_TagString: WeaponPickup
+  m_TagString: Pistol
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 198419784749072719}
   m_Layer: 7
   m_Name: Shotgun
-  m_TagString: WeaponPickup
+  m_TagString: Shotgun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

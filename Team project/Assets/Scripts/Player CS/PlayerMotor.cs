@@ -102,7 +102,7 @@ public class PlayerMotor : MonoBehaviour
 
             Controller.enabled = false;
 
-            Invoke("ResetPickupFlag", 0.01f);
+            Invoke("ResetPickupFlag", 1f);
         }
 
         StrafeLeft = Input.GetKey(KeyCode.A);
@@ -155,7 +155,6 @@ public class PlayerMotor : MonoBehaviour
     {
         if (IsGrounded)
         {
-            // Check if the player is moving forward or standing idle
             if ((Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D)) || IsIdle)
             {
                 playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
