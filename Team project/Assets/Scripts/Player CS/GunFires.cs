@@ -9,7 +9,7 @@ public class GunFires : MonoBehaviour
     public Animator playerAnimator;
     public float mouseSensitivity = 2.0f;
 
-    public GameObject bulletPrefab; 
+    public GameObject bulletPrefab;
 
     private bool isIdle = true;
     private bool isAiming = false;
@@ -31,23 +31,19 @@ public class GunFires : MonoBehaviour
 
     void Update()
     {
-        if (isAiming && Input.GetButtonDown("Fire1"))
+        if (isAiming && Input.GetMouseButton(1))
         {
-            Debug.Log("is shooting");
-            Shoot();
-            playerAnimator.SetTrigger("IsShooting");
-            SetAimingState(false);
-        }
-        else
-        {
-            bool canShootWithoutAiming = !isAiming && IsMoving();
-
-            if (canShootWithoutAiming && Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1"))
             {
-                Debug.Log("is shooting without aiming");
+                Debug.Log("is shooting");
                 Shoot();
                 playerAnimator.SetTrigger("IsShooting");
             }
+        }
+        else if (IsMoving() && Input.GetButtonDown("Fire1"))
+        {
+            Shoot();
+            playerAnimator.SetTrigger("IsShooting");
         }
     }
 

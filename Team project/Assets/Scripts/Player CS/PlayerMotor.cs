@@ -96,13 +96,7 @@ public class PlayerMotor : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying)
         {
-            Debug.Log("PickingUp animation triggered.");
-            animator.SetBool("PickingUp", true);
-            isPickupAnimationPlaying = true;
-
-            Controller.enabled = false;
-
-            Invoke("ResetPickupFlag", 1f);
+            TryPickupAnimation();
         }
 
         StrafeLeft = Input.GetKey(KeyCode.A);
@@ -133,6 +127,39 @@ public class PlayerMotor : MonoBehaviour
         UpdateStaminaUI();
     }
 
+    void TryPickupAnimation()
+    {
+        // Check if the PlayerInventory script is attached to the same GameObject
+        PlayerInventory playerInventory = GetComponent<PlayerInventory>();
+
+        if (playerInventory != null && playerInventory.CanPickUp())
+        {
+            // Check if there's an object with the desired layer tag nearby
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
+            bool canPickup = false;
+
+            foreach (Collider collider in colliders)
+            {
+                if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
+                {
+                    canPickup = true;
+                    break; // No need to check further once we find a valid object
+                }
+            }
+
+            if (canPickup)
+            {
+                Debug.Log("PickingUp animation triggered.");
+                animator.SetBool("IsPickingUp", true);  // Use SetBool for boolean parameters
+                isPickupAnimationPlaying = true;
+
+                Controller.enabled = false;
+
+                Invoke("ResetPickupFlag", 0.1f);
+            }
+        }
+    }
+
 
     public void ProcessMove(Vector2 input)
     {
@@ -155,15 +182,15 @@ public class PlayerMotor : MonoBehaviour
     {
         if (IsGrounded)
         {
-            if ((Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D)) || IsIdle)
+            if ((IsIdle || (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))) && !StrafeLeft && !StrafeRight)
             {
                 playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
                 animator.SetBool("IsJumping", true);
             }
-        }
-        else
-        {
-            animator.SetBool("IsJumping", false);
+            else
+            {
+                animator.SetBool("IsJumping", false);
+            }
         }
     }
 
@@ -202,10 +229,12 @@ public class PlayerMotor : MonoBehaviour
 
     void ResetPickupFlag()
     {
-        animator.SetBool("PickingUp", false);
-        isPickupAnimationPlaying = false;
+        animator.SetBool("IsPickingUp", false);
 
         Controller.enabled = true;
+
+        // Reset IsIdle flag after pickup animation is complete
+        IsIdle = true;
     }
 }
 

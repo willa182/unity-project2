@@ -19,6 +19,8 @@ TagManager:
   - Pistol
   - Shotgun
   - Rifle
+  - HealthPrefab1
+  - HealthPrefab2
   layers:
   - Default
   - TransparentFX

@@ -3,13 +3,15 @@ using UnityEngine;
 public class EnemyMeleeMove : MonoBehaviour
 {
     public float chaseRange = 15f;
-    public float WalkRange = 10f;
+    public float walkRange = 10f;
+    public float scratchRange = 3f; // New variable for scratch range
     public float walkingSpeed = 3f;
     public float runningSpeed = 6f;
 
     private Transform player;
     private Animator animator;
     private bool isChasing = false;
+    private bool isScratching = false; // New variable for scratching
     private EnemyHealthManager healthManager;
     private PlayerHealthManager playerHealth;
 
@@ -40,18 +42,30 @@ public class EnemyMeleeMove : MonoBehaviour
             return;
         }
 
+        // Check if the player is within the scratch range
+        isScratching = (distanceToPlayer <= scratchRange);
+
         if (distanceToPlayer <= chaseRange)
         {
             isChasing = true;
 
-            if (distanceToPlayer <= WalkRange)
+            if (isScratching)
             {
+                // Player is within the scratch range
+                SetWalkingAnimation(false);
+                SetRunningAnimation(false);
+                // Set the scratching animation or behavior here
+            }
+            else if (distanceToPlayer <= walkRange)
+            {
+                // Player is within the walk range
                 SetWalkingAnimation(false);
                 SetRunningAnimation(true);
                 MoveTowardsPlayer(runningSpeed);
             }
             else
             {
+                // Player is outside the scratch and walk range
                 SetWalkingAnimation(true);
                 SetRunningAnimation(false);
                 MoveTowardsPlayer(walkingSpeed);
@@ -68,13 +82,13 @@ public class EnemyMeleeMove : MonoBehaviour
 
         if (!isChasing)
         {
-            // Handle non-chasing behavior maybe in future
+            // Handle non-chasing behavior maybe in the future
         }
     }
 
     void ChasePlayer()
     {
-        // Implement chasing behavior maybe in future
+        // Implement chasing behavior maybe in the future
     }
 
     void SetWalkingAnimation(bool value)

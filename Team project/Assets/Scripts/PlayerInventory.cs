@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
@@ -13,9 +15,13 @@ public class PlayerInventory : MonoBehaviour
     private int equippedSlotIndex = -1;
     private int selectedWeaponIndex = -1;
 
+    public CharacterController Controller;
+    public Animator animator;
     public KeyCode pickupKey = KeyCode.E;
     private bool canPickup = true;
     private GameObject equippedWeaponInstance;
+    private bool isPickupAnimationPlaying = false;
+    private bool IsIdle;
 
     [System.Serializable]
     public class WeaponTransformSettings
@@ -29,6 +35,8 @@ public class PlayerInventory : MonoBehaviour
     {
         InitializeQuickslots();
         LoadWeaponPrefabs();
+        Controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -51,6 +59,26 @@ public class PlayerInventory : MonoBehaviour
         {
             InstantiateWeaponInHand(weaponsInventory[equippedSlotIndex]);
         }
+    }
+
+    public bool CanPickUp()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("WeaponPickup"))
+            {
+                Weapon weaponPrefab = collider.GetComponent<Weapon>();
+
+                if (weaponPrefab != null && !weaponsInventory.Contains(weaponPrefab))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     void TryEquipWeapon(int slotIndex)
@@ -78,23 +106,28 @@ public class PlayerInventory : MonoBehaviour
 
     void TryPickupWeapon()
     {
+        // Check if there's an object with the desired layer tag nearby
         Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
+        bool canPickup = false;
 
         foreach (Collider collider in colliders)
         {
-            if (collider.CompareTag("WeaponPickup"))
+            if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
             {
-                Weapon weaponPrefab = collider.GetComponent<Weapon>();
-                if (weaponPrefab != null && weaponsInventory.Count < 3 && !weaponsInventory.Contains(weaponPrefab))
-                {
-                    AddWeapon(weaponPrefab);
-
-                    canPickup = true;
-                    return;
-                }
+                canPickup = true;
+                break; // No need to check further once we find a valid object
             }
         }
-        canPickup = true;
+
+        if (canPickup)
+        {
+            Debug.Log("PickingUp animation triggered.");
+            animator.SetBool("PickingUp", true);
+            isPickupAnimationPlaying = true;
+
+            Controller.enabled = false;
+            StartCoroutine(ResetPickupFlag());
+        }
     }
 
     void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
@@ -142,7 +175,7 @@ public class PlayerInventory : MonoBehaviour
                 equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
                 equippedWeaponInstance.transform.SetParent(handTransform);
 
-     
+
                 equippedWeaponInstance.transform.localPosition = selectedWeapon.transformSettings.position;
                 equippedWeaponInstance.transform.localRotation = selectedWeapon.transformSettings.rotation;
                 equippedWeaponInstance.transform.localScale = selectedWeapon.transformSettings.scale;
@@ -222,5 +255,15 @@ public class PlayerInventory : MonoBehaviour
         AddWeapon(weapon);
         DestroyImmediate(weapon.gameObject);
         UpdateQuickslotUI();
+    }
+
+    IEnumerator ResetPickupFlag()
+    {
+        yield return new WaitForSeconds(0.1f); // Wait for 1 second
+        animator.SetBool("PickingUp", false);
+        isPickupAnimationPlaying = false;
+
+        Controller.enabled = true;
+        IsIdle = true;
     }
 }

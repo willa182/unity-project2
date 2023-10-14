@@ -20,6 +20,9 @@ public class PlayerHealthManager : MonoBehaviour
     public Image flashCanvas;
     public Slider healthSlider;
 
+    public int healthRestoreAmountPrefab1;
+    public int healthRestoreAmountPrefab2;
+
     private float flashCounter;
     private bool isDead = false; 
 
@@ -37,6 +40,42 @@ public class PlayerHealthManager : MonoBehaviour
 
         UpdateHealthBar();
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Check if the player runs over Prefab 1
+        if (other.CompareTag("HealthPrefab1"))
+        {
+            // Restore health based on the amount for Prefab 1
+            RestoreHealth(healthRestoreAmountPrefab1);
+
+            // Optionally, you can disable or destroy the prefab after the player runs over it
+            other.gameObject.SetActive(false);  // or Destroy(other.gameObject);
+        }
+        // Check if the player runs over Prefab 2
+        else if (other.CompareTag("HealthPrefab2"))
+        {
+            // Restore health based on the amount for Prefab 2
+            RestoreHealth(healthRestoreAmountPrefab2);
+
+            // Optionally, you can disable or destroy the prefab after the player runs over it
+            other.gameObject.SetActive(false);  // or Destroy(other.gameObject);
+        }
+    }
+
+    private void RestoreHealth(int amount)
+    {
+        if (!isDead)
+        {
+            currentHealth += amount;
+
+            // Ensure health does not exceed starting health
+            currentHealth = Mathf.Min(currentHealth, startingHealth);
+
+            UpdateHealthBar();
+        }
+    }
+
 
     void Update()
     {
