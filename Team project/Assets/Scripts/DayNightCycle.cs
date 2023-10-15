@@ -14,6 +14,7 @@ public class DayNightCycle : MonoBehaviour
     public float timeMultiplier = 60f;
 
     public List<Light> spotlights;
+    public SoundManager soundManager;
 
     private float currentTime = 8 * 60 * 60;
     private bool isDay = true;
@@ -34,6 +35,12 @@ public class DayNightCycle : MonoBehaviour
             RenderSettings.skybox = nightSkyboxMaterial;
             directionalLight.enabled = false;
             SetSpotlightsActive(true);
+
+            // Play Night Scream sound
+            if (soundManager != null)
+            {
+                soundManager.PlayNightscreamSound();
+            }
         }
 
         if (currentTime >= (24 * 60 * 60))
@@ -46,7 +53,7 @@ public class DayNightCycle : MonoBehaviour
             isDay = true;
             RenderSettings.skybox = daySkyboxMaterial;
             directionalLight.enabled = true;
-            SetSpotlightsActive(false); 
+            SetSpotlightsActive(false);
         }
 
         UpdateTimerText();
@@ -68,6 +75,7 @@ public class DayNightCycle : MonoBehaviour
             yield return null;
         }
     }
+
 
     private void UpdateTimerText()
     {

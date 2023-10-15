@@ -31,6 +31,7 @@ public class EnemyMeleeMove : MonoBehaviour
             SetWalkingAnimation(false);
             SetRunningAnimation(false);
             animator.SetBool("IsIdle", true);
+            StopMeleeAttack();
             return;
         }
 
@@ -39,6 +40,7 @@ public class EnemyMeleeMove : MonoBehaviour
         if (healthManager != null && healthManager.IsFlashing())
         {
             MoveTowardsPlayer(runningSpeed);
+            StopMeleeAttack();
             return;
         }
 
@@ -54,7 +56,7 @@ public class EnemyMeleeMove : MonoBehaviour
                 // Player is within the scratch range
                 SetWalkingAnimation(false);
                 SetRunningAnimation(false);
-                // Set the scratching animation or behavior here
+                StartMeleeAttack();
             }
             else if (distanceToPlayer <= walkRange)
             {
@@ -62,6 +64,7 @@ public class EnemyMeleeMove : MonoBehaviour
                 SetWalkingAnimation(false);
                 SetRunningAnimation(true);
                 MoveTowardsPlayer(runningSpeed);
+                StopMeleeAttack();
             }
             else
             {
@@ -69,6 +72,7 @@ public class EnemyMeleeMove : MonoBehaviour
                 SetWalkingAnimation(true);
                 SetRunningAnimation(false);
                 MoveTowardsPlayer(walkingSpeed);
+                StopMeleeAttack();
             }
         }
         else
@@ -76,8 +80,8 @@ public class EnemyMeleeMove : MonoBehaviour
             isChasing = false;
             SetWalkingAnimation(false);
             SetRunningAnimation(false);
-
             animator.SetBool("IsIdle", true);
+            StopMeleeAttack();
         }
 
         if (!isChasing)
@@ -86,9 +90,20 @@ public class EnemyMeleeMove : MonoBehaviour
         }
     }
 
-    void ChasePlayer()
+    void StartMeleeAttack()
     {
-        // Implement chasing behavior maybe in the future
+        if (!animator.GetBool("Melee"))
+        {
+            animator.SetBool("Melee", true);
+        }
+    }
+
+    void StopMeleeAttack()
+    {
+        if (animator.GetBool("Melee") && !isScratching)
+        {
+            animator.SetBool("Melee", false);
+        }
     }
 
     void SetWalkingAnimation(bool value)

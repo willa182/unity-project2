@@ -53,14 +53,14 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKey(KeyCode.W) && IsGrounded)
         {
-            Craft = true;
-            animator.SetBool("IsWalking", Craft);
+            //Craft = true;
+            animator.SetBool("IsWalking", true);
             gunFires.SetAimingState(false);
         }
         else
         {
-            Craft = false;
-            animator.SetBool("IsWalking", Craft);
+            //Craft = false;
+            animator.SetBool("IsWalking", false);
             if (IsIdle && Input.GetButton("Fire2"))
             {
                 gunFires.SetAimingState(true);
@@ -75,14 +75,14 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKey(KeyCode.S) && IsGrounded)
         {
-            Craft = true;
-            animator.SetBool("isWalkingBackward", Craft);
+            //Craft = true;
+            animator.SetBool("isWalkingBackward", true);
             gunFires.SetAimingState(false);
         }
         else
         {
-            Craft = false;
-            animator.SetBool("isWalkingBackward", Craft);
+           // Craft = false;
+            animator.SetBool("isWalkingBackward", false);
             gunFires.SetAimingState(true);
         }
 

@@ -9,16 +9,21 @@ public class GunFires : MonoBehaviour
     public Animator playerAnimator;
     public float mouseSensitivity = 2.0f;
 
-    public GameObject bulletPrefab;
-
+    public Transform playerHand; // Reference to the player's hand
     private bool isIdle = true;
     private bool isAiming = false;
     private PlayerLook playerLook;
+    public GameObject bulletPrefab;
+
+    private SoundManager soundManager;
+    private bool isFiring = false;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        soundManager = SoundManager.instance;
 
         playerLook = GetComponent<PlayerLook>();
         if (playerLook == null)
@@ -31,32 +36,58 @@ public class GunFires : MonoBehaviour
 
     void Update()
     {
-        if (isAiming && Input.GetMouseButton(1))
+        if (IsValidWeaponInHand())
         {
-            if (Input.GetButtonDown("Fire1"))
+            if (isAiming && Input.GetMouseButton(1))
             {
-                Debug.Log("is shooting");
+                if (Input.GetButtonDown("Fire1") && IsAutomaticWeapon())
+                {
+                    StartCoroutine(AutomaticFire());
+                }
+                else if (Input.GetButtonDown("Fire1"))
+                {
+                    PlayWeaponFireSound();
+                    Shoot();
+                    playerAnimator.SetTrigger("IsShooting");
+                }
+            }
+            else if (IsMoving() && Input.GetButtonDown("Fire1"))
+            {
+                PlayWeaponFireSound();
                 Shoot();
                 playerAnimator.SetTrigger("IsShooting");
             }
         }
-        else if (IsMoving() && Input.GetButtonDown("Fire1"))
+    }
+
+    void PlayWeaponFireSound()
+    {
+        foreach (Transform weaponTransform in playerHand)
         {
-            Shoot();
-            playerAnimator.SetTrigger("IsShooting");
+            // Check the tag to determine which weapon is firing
+            if (weaponTransform.CompareTag("Pistol"))
+            {
+                soundManager.PlayPistolFireSound();
+            }
+            else if (weaponTransform.CompareTag("Rifle"))
+            {
+                soundManager.PlayRifleFireSound();
+            }
+            else if (weaponTransform.CompareTag("Shotgun"))
+            {
+                soundManager.PlayShotgunFireSound();
+            }
+            // Add more checks for other weapon tags if needed
         }
     }
 
     void Shoot()
     {
-        Debug.Log("Before Instantiate: " + bulletPrefab.name);
-
+        // Your shooting logic here
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 
         if (bullet != null)
         {
-            Debug.Log("Bullet instantiated successfully");
-
             Rigidbody rb = bullet.GetComponent<Rigidbody>();
 
             if (rb != null)
@@ -76,16 +107,45 @@ public class GunFires : MonoBehaviour
         }
     }
 
-    IEnumerator DestroyBulletDelayed(GameObject bullet, float delay)
+    bool IsValidWeaponInHand()
     {
-        yield return new WaitForSeconds(delay);
-        Destroy(bullet);
+        // Check if there's at least one valid weapon in the player's hand
+        foreach (Transform weaponTransform in playerHand)
+        {
+            if (weaponTransform.CompareTag("Pistol") || weaponTransform.CompareTag("Rifle") || weaponTransform.CompareTag("Shotgun"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-
-    public void SetIdleState(bool isIdleState)
+    bool IsAutomaticWeapon()
     {
-        isIdle = isIdleState;
+        foreach (Transform weaponTransform in playerHand)
+        {
+            if (weaponTransform.CompareTag("Rifle"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    IEnumerator AutomaticFire()
+    {
+        while (Input.GetButton("Fire1") && IsAutomaticWeapon())
+        {
+            PlayWeaponFireSound();
+            Shoot();
+            playerAnimator.SetTrigger("IsShooting");
+            yield return null;
+        }
+    }
+
+    bool IsMoving()
+    {
+        return Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
     }
 
     public void SetAimingState(bool isAimingState)
@@ -93,9 +153,14 @@ public class GunFires : MonoBehaviour
         isAiming = isAimingState;
         playerLook.SetAiming(isAiming);
     }
-
-    private bool IsMoving()
+    public void SetIdleState(bool isIdleState)
     {
-        return Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
+        isIdle = isIdleState;
+    }
+
+    IEnumerator DestroyBulletDelayed(GameObject bullet, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(bullet);
     }
 }
