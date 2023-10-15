@@ -126,7 +126,7 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: d7c82189f43fd9a49a35ad556937b500, type: 3}
   transformSettings:
     position: {x: -0.000542, y: 0.001634, z: -0.001138}
-    rotation: {x: -0.14758644, y: -0.93182766, z: -0.3294972, w: -0.036702428}
+    rotation: {x: 0.517689, y: 0.40907192, z: 0.17937471, w: -0.7297143}
     scale: {x: 0.01, y: 0.01, z: 0.01}
 --- !u!1 &4514435768398991545
 GameObject:
