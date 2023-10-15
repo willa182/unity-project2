@@ -624,6 +624,28 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!1101 &493319831183487327
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions: []
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: 1102003829150767092}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.25
+  m_TransitionOffset: 0
+  m_ExitTime: 0.37500006
+  m_HasExitTime: 1
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1101 &825895624849986120
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -1153,6 +1175,8 @@ AnimatorState:
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 1101836238065043994}
+  - {fileID: 493319831183487327}
+  - {fileID: 8600153854015562448}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
@@ -1264,7 +1288,7 @@ AnimatorStateMachine:
     m_Position: {x: -410, y: -250, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1102814901570424344}
-    m_Position: {x: -130, y: -350, z: 0}
+    m_Position: {x: -100, y: -340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1102003829150767092}
     m_Position: {x: 900, y: -210, z: 0}
@@ -1297,7 +1321,6 @@ AnimatorStateMachine:
   - {fileID: -6610184142946474039}
   - {fileID: -7983811295420808278}
   - {fileID: -1676675647740757905}
-  - {fileID: 7857203701758979660}
   - {fileID: -2227281361336701581}
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
@@ -1598,7 +1621,7 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
---- !u!1101 &7857203701758979660
+--- !u!1101 &8600153854015562448
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1607,15 +1630,15 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions: []
   m_DstStateMachine: {fileID: 0}
-  m_DstState: {fileID: 1102814901570424344}
+  m_DstState: {fileID: 1102663624151248148}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
-  m_ExitTime: 0.75
-  m_HasExitTime: 0
+  m_ExitTime: 0.37500006
+  m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1

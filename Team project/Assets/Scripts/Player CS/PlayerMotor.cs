@@ -17,6 +17,7 @@ public class PlayerMotor : MonoBehaviour
     public float staminaDepletionRate = 10f;
     public Slider staminaSlider;
     private bool IsIdle;
+    public float sprintSpeedMultiplier = 1.5f;
 
     Animator animator;
     GunFires gunFires;
@@ -48,18 +49,21 @@ public class PlayerMotor : MonoBehaviour
     {
         IsGrounded = Physics.CheckSphere(groundCheck.transform.position, groundCheckRadius, groundMask);
 
-        Move = Input.GetKey(KeyCode.LeftShift) && stamina > 0;
-        animator.SetBool("IsRunning", Move);
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+        Move = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S)) && stamina > 0;
+
+        float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
+
+
+        animator.SetBool("IsRunning", Move && isSprinting);
 
         if (Input.GetKey(KeyCode.W) && IsGrounded)
         {
-            //Craft = true;
             animator.SetBool("IsWalking", true);
             gunFires.SetAimingState(false);
         }
         else
         {
-            //Craft = false;
             animator.SetBool("IsWalking", false);
             if (IsIdle && Input.GetButton("Fire2"))
             {
@@ -75,13 +79,11 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKey(KeyCode.S) && IsGrounded)
         {
-            //Craft = true;
             animator.SetBool("isWalkingBackward", true);
             gunFires.SetAimingState(false);
         }
         else
         {
-           // Craft = false;
             animator.SetBool("isWalkingBackward", false);
             gunFires.SetAimingState(true);
         }
@@ -167,7 +169,9 @@ public class PlayerMotor : MonoBehaviour
         moveDirection.x = input.x;
         moveDirection.z = input.y;
 
-        float currentSpeed = Move ? speed * 1.5f : speed;
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+        float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
+
 
         Controller.Move(transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime);
 
@@ -196,7 +200,7 @@ public class PlayerMotor : MonoBehaviour
 
     private void DrainStamina()
     {
-        if (stamina > 0)
+        if (animator.GetBool("IsRunning") && stamina > 0)
         {
             stamina -= staminaDepletionRate * Time.deltaTime;
         }
