@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,7 @@ public class PlayerMotor : MonoBehaviour
     public float staminaRegenRate = 5f;
     public float staminaDepletionRate = 10f;
     public Slider staminaSlider;
+
     private bool IsIdle;
     public float sprintSpeedMultiplier = 1.5f;
 
@@ -27,7 +29,9 @@ public class PlayerMotor : MonoBehaviour
     private bool StrafeLeft;
     private bool StrafeRight;
 
+    private bool canPickup = true;
     private bool isPickupAnimationPlaying = false;
+
     private PlayerHealthManager healthManager;
 
     // Start is called before the first frame update
@@ -54,7 +58,6 @@ public class PlayerMotor : MonoBehaviour
 
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
 
-
         animator.SetBool("IsRunning", Move && isSprinting);
 
         if (Input.GetKey(KeyCode.W) && IsGrounded)
@@ -69,61 +72,70 @@ public class PlayerMotor : MonoBehaviour
             {
                 gunFires.SetAimingState(true);
                 animator.SetBool("IsAiming", true);
+
+                Controller.enabled = false;
             }
             else
             {
                 gunFires.SetAimingState(false);
                 animator.SetBool("IsAiming", false);
+
+                Controller.enabled = true;
             }
         }
 
-        if (Input.GetKey(KeyCode.S) && IsGrounded)
-        {
-            animator.SetBool("isWalkingBackward", true);
-            gunFires.SetAimingState(false);
-        }
-        else
-        {
-            animator.SetBool("isWalkingBackward", false);
-            gunFires.SetAimingState(true);
-        }
+        bool allowMovement = !animator.GetBool("IsAiming");
 
-        IsIdle = !Move && !Craft && !StrafeLeft && !StrafeRight;
-        gunFires.SetIdleState(IsIdle);
-
-        if (Input.GetKeyDown(KeyCode.F) && IsIdle)
+        if (allowMovement)
         {
-            animator.SetBool("Melee", true);
-            Invoke("ResetMeleeFlag", 1f);
-        }
-        if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying)
-        {
-            TryPickupAnimation();
-        }
+            if (Input.GetKey(KeyCode.S) && IsGrounded)
+            {
+                animator.SetBool("isWalkingBackward", true);
+                gunFires.SetAimingState(false);
+            }
+            else
+            {
+                animator.SetBool("isWalkingBackward", false);
+                gunFires.SetAimingState(true);
+            }
 
-        StrafeLeft = Input.GetKey(KeyCode.A);
-        animator.SetBool("IsStrafingLeft", StrafeLeft);
+            IsIdle = !Move && !Craft && !StrafeLeft && !StrafeRight;
+            gunFires.SetIdleState(IsIdle);
 
-        StrafeRight = Input.GetKey(KeyCode.D);
-        animator.SetBool("IsStrafingRight", StrafeRight);
+            if (Input.GetKeyDown(KeyCode.F) && IsIdle)
+            {
+                animator.SetBool("Melee", true);
+                Invoke("ResetMeleeFlag", 1f);
+            }
+            if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying && canPickup)
+            {
+                TryPickupAnimation();
+            }
 
-        if (!IsGrounded)
-        {
-            animator.SetBool("IsJumping", false);
-        }
+            StrafeLeft = Input.GetKey(KeyCode.A);
+            animator.SetBool("IsStrafingLeft", StrafeLeft);
 
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
-        {
-            Jump();
-        }
+            StrafeRight = Input.GetKey(KeyCode.D);
+            animator.SetBool("IsStrafingRight", StrafeRight);
 
-        if (Move && IsGrounded)
-        {
-            DrainStamina();
-        }
-        else
-        {
-            RegenerateStamina();
+            if (!IsGrounded)
+            {
+                animator.SetBool("IsJumping", false);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
+            {
+                Jump();
+            }
+
+            if (Move && IsGrounded)
+            {
+                DrainStamina();
+            }
+            else
+            {
+                RegenerateStamina();
+            }
         }
 
         UpdateStaminaUI();
@@ -131,12 +143,10 @@ public class PlayerMotor : MonoBehaviour
 
     void TryPickupAnimation()
     {
-        // Check if the PlayerInventory script is attached to the same GameObject
         PlayerInventory playerInventory = GetComponent<PlayerInventory>();
 
         if (playerInventory != null && playerInventory.CanPickUp())
         {
-            // Check if there's an object with the desired layer tag nearby
             Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
             bool canPickup = false;
 
@@ -145,23 +155,24 @@ public class PlayerMotor : MonoBehaviour
                 if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
                 {
                     canPickup = true;
-                    break; // No need to check further once we find a valid object
+                    break;
                 }
             }
 
             if (canPickup)
             {
                 Debug.Log("PickingUp animation triggered.");
-                animator.SetBool("IsPickingUp", true);  // Use SetBool for boolean parameters
+                animator.SetBool("IsPickingUp", true);
                 isPickupAnimationPlaying = true;
-
                 Controller.enabled = false;
 
-                Invoke("ResetPickupFlag", 0.1f);
+                // You can add the logic to handle the pickup action here.
+
+                // Reset animation and controller state after a short delay
+                StartCoroutine(playerInventory.ResetPickupFlag());
             }
         }
     }
-
 
     public void ProcessMove(Vector2 input)
     {
@@ -171,7 +182,6 @@ public class PlayerMotor : MonoBehaviour
 
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
-
 
         Controller.Move(transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime);
 
@@ -230,16 +240,4 @@ public class PlayerMotor : MonoBehaviour
             animator.SetBool("Melee", false);
         }
     }
-
-    void ResetPickupFlag()
-    {
-        animator.SetBool("IsPickingUp", false);
-
-        Controller.enabled = true;
-
-        // Reset IsIdle flag after pickup animation is complete
-        IsIdle = true;
-    }
 }
-
-

@@ -46,18 +46,22 @@ public class GunFires : MonoBehaviour
                 }
                 else if (Input.GetButtonDown("Fire1"))
                 {
-                    PlayWeaponFireSound();
-                    Shoot();
-                    playerAnimator.SetTrigger("IsShooting");
+                    StartCoroutine(ShootWithDelay());
                 }
             }
             else if (IsMoving() && Input.GetButtonDown("Fire1"))
             {
-                PlayWeaponFireSound();
-                Shoot();
-                playerAnimator.SetTrigger("IsShooting");
+                StartCoroutine(ShootWithDelay());
             }
         }
+    }
+
+    IEnumerator ShootWithDelay()
+    {
+        yield return new WaitForSeconds(0.2f); // Adjust the delay time as needed
+        PlayWeaponFireSound();
+        Shoot();
+        playerAnimator.SetTrigger("IsShooting");
     }
 
     void PlayWeaponFireSound()
@@ -83,7 +87,25 @@ public class GunFires : MonoBehaviour
 
     void Shoot()
     {
-        // Your shooting logic here
+        StartCoroutine(InstantiateBulletWithDelay());
+    }
+
+    bool IsValidWeaponInHand()
+    {
+        // Check if there's at least one valid weapon in the player's hand
+        foreach (Transform weaponTransform in playerHand)
+        {
+            if (weaponTransform.CompareTag("Pistol") || weaponTransform.CompareTag("Rifle") || weaponTransform.CompareTag("Shotgun"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    IEnumerator InstantiateBulletWithDelay()
+    {
+        yield return new WaitForSeconds(0.1f); // Adjust the delay time as needed
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 
         if (bullet != null)
@@ -105,19 +127,6 @@ public class GunFires : MonoBehaviour
         {
             Debug.LogError("Bullet instantiation failed");
         }
-    }
-
-    bool IsValidWeaponInHand()
-    {
-        // Check if there's at least one valid weapon in the player's hand
-        foreach (Transform weaponTransform in playerHand)
-        {
-            if (weaponTransform.CompareTag("Pistol") || weaponTransform.CompareTag("Rifle") || weaponTransform.CompareTag("Shotgun"))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     bool IsAutomaticWeapon()

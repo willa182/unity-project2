@@ -25,7 +25,7 @@ public class FlashLight : MonoBehaviour
     void Update()
     {
         // Check for player input (G key)
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.T))
         {
             ToggleFlashlight();
         }

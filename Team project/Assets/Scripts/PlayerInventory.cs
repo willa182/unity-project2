@@ -119,14 +119,52 @@ public class PlayerInventory : MonoBehaviour
             }
         }
 
-        if (canPickup)
+        if (canPickup && !isPickupAnimationPlaying && canPickup)
         {
             Debug.Log("PickingUp animation triggered.");
             animator.SetBool("PickingUp", true);
             isPickupAnimationPlaying = true;
 
-            Controller.enabled = false;
             StartCoroutine(ResetPickupFlag());
+        }
+    }
+
+    public IEnumerator ResetPickupFlag()
+    {
+        // Assuming InputManager script is attached to the same GameObject
+        InputManager inputManager = GetComponent<InputManager>();
+
+        if (inputManager != null)
+        {
+            inputManager.enabled = false;
+        }
+
+        CharacterController characterController = GetComponent<CharacterController>();
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
+        yield return new WaitForSeconds(2.5f);
+
+        animator.SetBool("PickingUp", false);
+        isPickupAnimationPlaying = false;
+
+        // Inform the animation system that the pickup animation is complete
+        animator.SetTrigger("PickedUp");
+
+        // Re-enable InputManager script
+        if (inputManager != null)
+        {
+            inputManager.enabled = true;
+        }
+
+        Controller.enabled = true;
+        IsIdle = true;
+
+        if (characterController != null)
+        {
+            characterController.enabled = true;
         }
     }
 
@@ -175,10 +213,11 @@ public class PlayerInventory : MonoBehaviour
                 equippedWeaponInstance = Instantiate(weaponPrefab, handTransform);
                 equippedWeaponInstance.transform.SetParent(handTransform);
 
+                WeaponTransformSettings transformSettings = selectedWeapon.transformSettings;
 
-                equippedWeaponInstance.transform.localPosition = selectedWeapon.transformSettings.position;
-                equippedWeaponInstance.transform.localRotation = selectedWeapon.transformSettings.rotation;
-                equippedWeaponInstance.transform.localScale = selectedWeapon.transformSettings.scale;
+                equippedWeaponInstance.transform.localPosition = transformSettings.position;
+                equippedWeaponInstance.transform.localRotation = Quaternion.Euler(transformSettings.rotation.eulerAngles); // Ensure rotation is set correctly
+                equippedWeaponInstance.transform.localScale = transformSettings.scale;
 
                 UpdateQuickslotUI();
             }
@@ -255,15 +294,5 @@ public class PlayerInventory : MonoBehaviour
         AddWeapon(weapon);
         DestroyImmediate(weapon.gameObject);
         UpdateQuickslotUI();
-    }
-
-    IEnumerator ResetPickupFlag()
-    {
-        yield return new WaitForSeconds(0.1f); // Wait for 1 second
-        animator.SetBool("PickingUp", false);
-        isPickupAnimationPlaying = false;
-
-        Controller.enabled = true;
-        IsIdle = true;
     }
 }

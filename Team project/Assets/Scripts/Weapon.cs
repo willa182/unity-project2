@@ -35,7 +35,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    void PickUp()
+   public void PickUp()
     {
         PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>();
         if (playerInventory != null)

@@ -4,14 +4,14 @@ public class EnemyMeleeMove : MonoBehaviour
 {
     public float chaseRange = 15f;
     public float walkRange = 10f;
-    public float scratchRange = 3f; // New variable for scratch range
+    public float scratchRange = 3f;
     public float walkingSpeed = 3f;
     public float runningSpeed = 6f;
 
     private Transform player;
     private Animator animator;
     private bool isChasing = false;
-    private bool isScratching = false; // New variable for scratching
+    private bool isScratching = false;
     private EnemyHealthManager healthManager;
     private PlayerHealthManager playerHealth;
 
@@ -44,7 +44,6 @@ public class EnemyMeleeMove : MonoBehaviour
             return;
         }
 
-        // Check if the player is within the scratch range
         isScratching = (distanceToPlayer <= scratchRange);
 
         if (distanceToPlayer <= chaseRange)
@@ -118,10 +117,15 @@ public class EnemyMeleeMove : MonoBehaviour
 
     void MoveTowardsPlayer(float speed)
     {
-        Vector3 direction = (player.position - transform.position).normalized;
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+        if (isScratching)
+        {
+            // Stop moving towards the player when in scratch range
+            return;
+        }
+            Vector3 direction = (player.position - transform.position).normalized;
+            transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
     }
 }
