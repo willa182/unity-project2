@@ -524,9 +524,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6607055011741502516}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.3597562, y: -0.7403767, z: 0.27537695, w: -0.49657366}
+  m_LocalPosition: {x: 0.00109, y: 0.001930048, z: -0.000220018}
+  m_LocalScale: {x: 0.0015, y: 0.0015, z: 0.0015}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8051561439329549671}
@@ -540,7 +540,7 @@ Transform:
   - {fileID: 2409229114473347613}
   - {fileID: 1920267133611464928}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 49.912, y: 483.472, z: 23.737}
 --- !u!65 &2329094896939100540
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -577,8 +577,8 @@ MonoBehaviour:
   weaponName: Uzi
   sprite: {fileID: 21300000, guid: 0fe0513829e31924a9507204c621ff9f, type: 3}
   transformSettings:
-    position: {x: -0.000542, y: 0.001634, z: -0.001138}
-    rotation: {x: -0.14758644, y: -0.93182766, z: -0.3294972, w: -0.036702428}
+    position: {x: 0.00109, y: 0.001930048, z: -0.000220018}
+    rotation: {x: 0.3597561, y: 0.74037683, z: -0.2753771, w: 0.4965734}
     scale: {x: 0.0015, y: 0.0015, z: 0.0015}
 --- !u!1 &7391378470698932689
 GameObject:

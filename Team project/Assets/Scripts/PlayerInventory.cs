@@ -150,7 +150,7 @@ public class PlayerInventory : MonoBehaviour
             characterController.enabled = false;
         }
 
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(3f);
 
         animator.SetBool("PickingUp", false);
         isPickupAnimationPlaying = false;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyMeleeMove : MonoBehaviour
 {
@@ -12,8 +13,11 @@ public class EnemyMeleeMove : MonoBehaviour
     private Animator animator;
     private bool isChasing = false;
     private bool isScratching = false;
+    private bool isMeleeAttacking = false;
+    private bool stopMelee = false; // Flag to stop Melee animation immediately
     private EnemyHealthManager healthManager;
     private PlayerHealthManager playerHealth;
+    private NavMeshAgent navMeshAgent;
 
     void Start()
     {
@@ -21,17 +25,15 @@ public class EnemyMeleeMove : MonoBehaviour
         animator = GetComponent<Animator>();
         healthManager = GetComponent<EnemyHealthManager>();
         playerHealth = player.GetComponent<PlayerHealthManager>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.speed = walkingSpeed; // Set initial speed
     }
 
     void Update()
     {
         if (playerHealth != null && playerHealth.currentHealth <= 0)
         {
-            isChasing = false;
-            SetWalkingAnimation(false);
-            SetRunningAnimation(false);
-            animator.SetBool("IsIdle", true);
-            StopMeleeAttack();
+            HandlePlayerDead();
             return;
         }
 
@@ -41,9 +43,11 @@ public class EnemyMeleeMove : MonoBehaviour
         {
             MoveTowardsPlayer(runningSpeed);
             StopMeleeAttack();
+            EnableNavMeshAgent();
             return;
         }
 
+        bool wasScratching = isScratching;
         isScratching = (distanceToPlayer <= scratchRange);
 
         if (distanceToPlayer <= chaseRange)
@@ -52,55 +56,99 @@ public class EnemyMeleeMove : MonoBehaviour
 
             if (isScratching)
             {
-                // Player is within the scratch range
-                SetWalkingAnimation(false);
-                SetRunningAnimation(false);
-                StartMeleeAttack();
+                HandleScratching();
+                DisableNavMeshAgent();
             }
             else if (distanceToPlayer <= walkRange)
             {
-                // Player is within the walk range
-                SetWalkingAnimation(false);
-                SetRunningAnimation(true);
-                MoveTowardsPlayer(runningSpeed);
-                StopMeleeAttack();
+                HandleWalking();
             }
             else
             {
-                // Player is outside the scratch and walk range
-                SetWalkingAnimation(true);
-                SetRunningAnimation(false);
-                MoveTowardsPlayer(walkingSpeed);
-                StopMeleeAttack();
+                HandleRunning();
             }
         }
         else
         {
             isChasing = false;
-            SetWalkingAnimation(false);
-            SetRunningAnimation(false);
-            animator.SetBool("IsIdle", true);
-            StopMeleeAttack();
+            HandleIdle();
+            EnableNavMeshAgent();
         }
 
-        if (!isChasing)
+        // Player left scratch range, stop Melee attack and resume normal behavior
+        if (!isChasing && !isScratching && wasScratching)
         {
-            // Handle non-chasing behavior maybe in the future
+            stopMelee = true; // Set the flag to stop Melee animation immediately
         }
+    }
+
+    void HandlePlayerDead()
+    {
+        isChasing = false;
+        SetWalkingAnimation(false);
+        SetRunningAnimation(false);
+        animator.SetBool("IsIdle", true);
+        StopMeleeAttack();
+        EnableNavMeshAgent(); // Ensure NavMeshAgent is enabled when the player is dead
+    }
+
+    void HandleScratching()
+    {
+        // Player is within the scratch range
+        SetWalkingAnimation(false);
+        SetRunningAnimation(false);
+
+        if (!isMeleeAttacking)
+        {
+            StartMeleeAttack();
+        }
+    }
+
+    void HandleWalking()
+    {
+        // Player is within the walk range
+        SetWalkingAnimation(true);
+        SetRunningAnimation(false);
+        MoveTowardsPlayer(walkingSpeed);
+        StopMeleeAttack();
+        EnableNavMeshAgent();
+    }
+
+    void HandleRunning()
+    {
+        // Player is outside the walk range but within the chase range
+        SetWalkingAnimation(false);
+        SetRunningAnimation(true);
+        MoveTowardsPlayer(runningSpeed);
+        StopMeleeAttack();
+        EnableNavMeshAgent();
+    }
+
+    void HandleIdle()
+    {
+        // Player is outside the scratch, walk, and chase range
+        SetWalkingAnimation(true);
+        SetRunningAnimation(false);
+        MoveTowardsPlayer(walkingSpeed);
+        StopMeleeAttack();
+        EnableNavMeshAgent();
     }
 
     void StartMeleeAttack()
     {
-        if (!animator.GetBool("Melee"))
+        if (!isMeleeAttacking && !animator.GetBool("Melee"))
         {
+            isMeleeAttacking = true;
             animator.SetBool("Melee", true);
+            stopMelee = false; // Reset the flag
         }
     }
 
     void StopMeleeAttack()
     {
-        if (animator.GetBool("Melee") && !isScratching)
+        if (isMeleeAttacking && animator.GetBool("Melee"))
         {
+            isMeleeAttacking = false;
             animator.SetBool("Melee", false);
         }
     }
@@ -117,15 +165,41 @@ public class EnemyMeleeMove : MonoBehaviour
 
     void MoveTowardsPlayer(float speed)
     {
-        if (isScratching)
+        if (isScratching || isMeleeAttacking)
         {
-            // Stop moving towards the player when in scratch range
+            // Stop moving towards the player when in scratch range or during Melee attack
             return;
         }
-            Vector3 direction = (player.position - transform.position).normalized;
-            transform.Translate(direction * speed * Time.deltaTime, Space.World);
 
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f);
+        // Set destination to the player's position
+        navMeshAgent.SetDestination(player.position);
+    }
+
+    void EnableNavMeshAgent()
+    {
+        if (!navMeshAgent.enabled)
+        {
+            navMeshAgent.enabled = true;
+            navMeshAgent.isStopped = false;
+        }
+    }
+
+    void DisableNavMeshAgent()
+    {
+        if (navMeshAgent.enabled)
+        {
+            navMeshAgent.isStopped = true;
+            navMeshAgent.enabled = false;
+        }
+    }
+
+    // LateUpdate is used to ensure that this runs after the Animator's internal updates
+    void LateUpdate()
+    {
+        if (stopMelee)
+        {
+            StopMeleeAttack();
+            stopMelee = false;
+        }
     }
 }
