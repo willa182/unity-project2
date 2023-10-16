@@ -166,9 +166,7 @@ public class PlayerMotor : MonoBehaviour
                 isPickupAnimationPlaying = true;
                 Controller.enabled = false;
 
-                // You can add the logic to handle the pickup action here.
-
-                // Reset animation and controller state after a short delay
+                // Coroutine to reset pickup flags and continue the animation
                 StartCoroutine(playerInventory.ResetPickupFlag());
             }
         }

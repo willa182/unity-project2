@@ -1,12 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
 {
-    public List<string> weaponPrefabNames = new List<string>();
+    [System.Serializable]
+    public class WeaponTransformSettings
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
+    }
+
+    [System.Serializable]
+    public class WeaponPrefabInfo
+    {
+        public string weaponPrefabName;
+        public WeaponTransformSettings transformSettings;
+    }
+
+    public List<WeaponPrefabInfo> weaponPrefabInfos = new List<WeaponPrefabInfo>();
     private List<Weapon> weaponsInventory = new List<Weapon>();
     private List<GameObject> quickslotSlots = new List<GameObject>();
 
@@ -23,18 +37,9 @@ public class PlayerInventory : MonoBehaviour
     private bool isPickupAnimationPlaying = false;
     private bool IsIdle;
 
-    [System.Serializable]
-    public class WeaponTransformSettings
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public Vector3 scale;
-    }
-
     void Start()
     {
         InitializeQuickslots();
-        LoadWeaponPrefabs();
         Controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
     }
@@ -216,7 +221,7 @@ public class PlayerInventory : MonoBehaviour
                 WeaponTransformSettings transformSettings = selectedWeapon.transformSettings;
 
                 equippedWeaponInstance.transform.localPosition = transformSettings.position;
-                equippedWeaponInstance.transform.localRotation = Quaternion.Euler(transformSettings.rotation.eulerAngles); // Ensure rotation is set correctly
+                equippedWeaponInstance.transform.localRotation = Quaternion.Euler(transformSettings.rotation.eulerAngles);
                 equippedWeaponInstance.transform.localScale = transformSettings.scale;
 
                 UpdateQuickslotUI();
@@ -270,22 +275,6 @@ public class PlayerInventory : MonoBehaviour
         foreach (Transform child in quickslotUI)
         {
             quickslotSlots.Add(child.gameObject);
-        }
-    }
-
-    void LoadWeaponPrefabs()
-    {
-        foreach (string weaponPrefabName in weaponPrefabNames)
-        {
-            Weapon weaponPrefab = Resources.Load<Weapon>("Weapons/" + weaponPrefabName);
-            if (weaponPrefab != null)
-            {
-                weaponsInventory.Add(weaponPrefab);
-            }
-            else
-            {
-                Debug.LogError("Failed to load weapon prefab: " + weaponPrefabName);
-            }
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static PlayerInventory;
 
 public class Weapon : MonoBehaviour
 {
@@ -9,7 +8,8 @@ public class Weapon : MonoBehaviour
     private bool canBePickedUp = false;
 
     public bool IsPickedUp { get; set; } = false;
-    public WeaponTransformSettings transformSettings;
+
+    public PlayerInventory.WeaponTransformSettings transformSettings;
 
     void Update()
     {
@@ -18,6 +18,7 @@ public class Weapon : MonoBehaviour
             PickUp();
         }
     }
+
 
     void OnTriggerEnter(Collider other)
     {
@@ -35,7 +36,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-   public void PickUp()
+    public void PickUp()
     {
         PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>();
         if (playerInventory != null)
@@ -49,7 +50,7 @@ public class Weapon : MonoBehaviour
 
     IEnumerator DestroyWeaponDelayed()
     {
-        yield return new WaitForSeconds(2.0f); 
-        Destroy(gameObject); 
+        yield return new WaitForSeconds(2.0f);
+        Destroy(gameObject);
     }
 }
