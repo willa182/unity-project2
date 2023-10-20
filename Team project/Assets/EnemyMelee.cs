@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class EnemyMelee : MonoBehaviour
 {
@@ -10,17 +9,15 @@ public class EnemyMelee : MonoBehaviour
     public float attackRange = 2f;
     public float screamRange = 35f;
 
-    private NavMeshAgent navMeshAgent;
     private Animator animator;
     private Transform playerTransform;
     private bool isScreaming = false;
+    public LayerMask groundLayer;
 
     void Start()
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-
         StartCoroutine(EnemyBehavior());
     }
 
@@ -44,15 +41,39 @@ public class EnemyMelee : MonoBehaviour
     {
         Vector3 randomDirection = Random.insideUnitSphere * 10f;
         randomDirection += transform.position;
-        NavMeshHit hit;
-        NavMesh.SamplePosition(randomDirection, out hit, 10f, NavMesh.AllAreas);
-
-        navMeshAgent.SetDestination(hit.position);
 
         animator.SetBool("IsWalking", true);
-        yield return new WaitForSeconds(Random.Range(3f, 6f));
+        float walkTime = Random.Range(3f, 6f);
+        float startTime = Time.time;
+
+        while (Time.time - startTime < walkTime)
+        {
+            // Calculate the movement direction.
+            Vector3 moveDirection = (randomDirection - transform.position).normalized;
+
+            // Move the enemy by updating its position directly.
+            transform.position += moveDirection * walkSpeed * Time.deltaTime;
+
+            // Ensure the enemy stays above the ground.
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundLayer))
+            {
+                transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+            }
+
+            // Update the enemy's rotation to face the movement direction.
+            if (moveDirection != Vector3.zero)
+            {
+                Quaternion rotation = Quaternion.LookRotation(moveDirection);
+                transform.rotation = rotation;
+            }
+
+            yield return null;
+        }
+
         animator.SetBool("IsWalking", false);
     }
+
 
     void Update()
     {
@@ -73,39 +94,27 @@ public class EnemyMelee : MonoBehaviour
             animator.SetBool("Scream", false);
             isScreaming = false;
 
-            // If player is in chase range, set IsRunning animation and run towards the player
             if (distanceToPlayer < chaseRange)
             {
+                // If player is in chase range, set IsRunning animation
                 animator.SetBool("IsRunning", true);
-                navMeshAgent.speed = runSpeed;
-                navMeshAgent.SetDestination(playerTransform.position);
             }
             else
             {
+                // Player is out of chase range
                 animator.SetBool("IsRunning", false);
-                navMeshAgent.speed = walkSpeed;
             }
         }
 
-        if (isScreaming || distanceToPlayer < chaseRange)
+        if (!isScreaming && distanceToPlayer < attackRange)
         {
-            // Disable other movements during scream or when in chase range
-            navMeshAgent.isStopped = true;
-            animator.SetBool("Melee", false);
+            // Enable melee attack if not screaming and within attack range
+            animator.SetBool("Melee", true);
         }
         else
         {
-            // Enable movements when not screaming and not in chase range
-            navMeshAgent.isStopped = false;
-
-            if (distanceToPlayer < attackRange)
-            {
-                animator.SetBool("Melee", true);
-            }
-            else
-            {
-                animator.SetBool("Melee", false);
-            }
+            // Disable melee attack otherwise
+            animator.SetBool("Melee", false);
         }
     }
 
