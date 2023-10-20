@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyMelee : MonoBehaviour
 {
@@ -12,12 +13,20 @@ public class EnemyMelee : MonoBehaviour
     private Animator animator;
     private Transform playerTransform;
     private bool isScreaming = false;
+    private NavMeshAgent navMeshAgent;
     public LayerMask groundLayer;
+
+    private bool isAttacking = false; // Track if the enemy is currently attacking.
 
     void Start()
     {
         animator = GetComponent<Animator>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Initialize the NavMeshAgent component.
+        navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.speed = walkSpeed; // Set initial speed.
+
         StartCoroutine(EnemyBehavior());
     }
 
@@ -41,39 +50,17 @@ public class EnemyMelee : MonoBehaviour
     {
         Vector3 randomDirection = Random.insideUnitSphere * 10f;
         randomDirection += transform.position;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, 10f, NavMesh.AllAreas);
+
+        // Set the NavMeshAgent's destination.
+        navMeshAgent.SetDestination(hit.position);
+        navMeshAgent.speed = walkSpeed; // Set the walking speed.
 
         animator.SetBool("IsWalking", true);
-        float walkTime = Random.Range(3f, 6f);
-        float startTime = Time.time;
-
-        while (Time.time - startTime < walkTime)
-        {
-            // Calculate the movement direction.
-            Vector3 moveDirection = (randomDirection - transform.position).normalized;
-
-            // Move the enemy by updating its position directly.
-            transform.position += moveDirection * walkSpeed * Time.deltaTime;
-
-            // Ensure the enemy stays above the ground.
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundLayer))
-            {
-                transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
-            }
-
-            // Update the enemy's rotation to face the movement direction.
-            if (moveDirection != Vector3.zero)
-            {
-                Quaternion rotation = Quaternion.LookRotation(moveDirection);
-                transform.rotation = rotation;
-            }
-
-            yield return null;
-        }
-
+        yield return new WaitForSeconds(Random.Range(3f, 6f));
         animator.SetBool("IsWalking", false);
     }
-
 
     void Update()
     {
@@ -87,6 +74,9 @@ public class EnemyMelee : MonoBehaviour
 
             // Face the player when screaming
             FacePlayer();
+
+            // Slow down the NavMeshAgent to a stop, don't stop it completely.
+            navMeshAgent.speed = 0f;
         }
         else
         {
@@ -96,25 +86,55 @@ public class EnemyMelee : MonoBehaviour
 
             if (distanceToPlayer < chaseRange)
             {
-                // If player is in chase range, set IsRunning animation
+                // If the player is in chase range, set IsRunning animation and run towards the player.
                 animator.SetBool("IsRunning", true);
+                navMeshAgent.speed = runSpeed;
+
+                // Check if the enemy is within the attack range.
+                if (distanceToPlayer <= attackRange && !isAttacking)
+                {
+                    // Stop the enemy.
+                    navMeshAgent.isStopped = true;
+                    animator.SetBool("IsRunning", false);
+
+                    // Play the Melee animation for attacking.
+                    animator.SetBool("Melee", true);
+
+                    // Set the attacking state.
+                    isAttacking = true;
+                }
+                else
+                {
+                    // Player is in chase range but not in attack range.
+                    // Stop the Melee animation and move towards the player.
+                    if (isAttacking)
+                    {
+                        animator.SetBool("Melee", false); // Stop the Melee animation.
+                        isAttacking = false;
+                    }
+
+                    // Set the destination only if the NavMeshAgent is not already running.
+                    if (!navMeshAgent.pathPending)
+                    {
+                        navMeshAgent.SetDestination(playerTransform.position);
+                    }
+                }
             }
             else
             {
                 // Player is out of chase range
                 animator.SetBool("IsRunning", false);
-            }
-        }
+                navMeshAgent.speed = walkSpeed;
+                navMeshAgent.isStopped = false;
+                animator.SetBool("Melee", false); // Ensure Melee is disabled when not in attack range.
+                isAttacking = false; // Reset the attacking state.
 
-        if (!isScreaming && distanceToPlayer < attackRange)
-        {
-            // Enable melee attack if not screaming and within attack range
-            animator.SetBool("Melee", true);
-        }
-        else
-        {
-            // Disable melee attack otherwise
-            animator.SetBool("Melee", false);
+                // Resume following the player when not attacking.
+                if (!isAttacking)
+                {
+                    navMeshAgent.SetDestination(playerTransform.position);
+                }
+            }
         }
     }
 
