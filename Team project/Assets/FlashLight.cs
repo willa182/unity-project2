@@ -5,12 +5,13 @@ using UnityEngine;
 public class FlashLight : MonoBehaviour
 {
     private Light flashlight;
+    private SoundManager soundManager;
 
     void Start()
     {
         // Get the Light component attached to this GameObject
         flashlight = GetComponent<Light>();
-
+        soundManager = SoundManager.instance;
         // Ensure the light starts off
         if (flashlight != null)
         {
@@ -28,6 +29,7 @@ public class FlashLight : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             ToggleFlashlight();
+            soundManager.PlayOnandOffSound();
         }
     }
 

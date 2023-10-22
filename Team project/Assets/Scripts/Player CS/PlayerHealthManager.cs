@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,11 @@ public class PlayerHealthManager : MonoBehaviour
     public int healthRestoreAmountPrefab2;
 
     private float flashCounter;
-    private bool isDead = false; 
+    private bool isDead = false;
+
+    public EnemyMelee enemyScript; // Reference to the EnemyMelee script
+    public int damageAmount = 10; // Define the damage amount
+    private bool canTakeDamage = true; // Flag to control when the player can take damage
 
     private SoundManager soundManager;
 
@@ -43,6 +48,39 @@ public class PlayerHealthManager : MonoBehaviour
         animator = GetComponent<Animator>();
         soundManager = SoundManager.instance;
         UpdateHealthBar();
+        if (enemyScript != null)
+        {
+            // Subscribe to the enemy's attack event
+            enemyScript.OnEnemyAttack += HandleEnemyAttack;
+        }
+        else
+        {
+            Debug.LogError("EnemyMelee reference is not assigned in the Inspector.");
+        }
+
+    }
+
+    void HandleEnemyAttack()
+    {
+        // Check if the player can take damage (based on cooldown or other conditions)
+        if (canTakeDamage)
+        {
+            // Handle the player's damage when the enemy attacks
+            HurtPlayer(damageAmount);
+
+            // Set a cooldown before the player can take damage again
+            StartCoroutine(EnableDamageCooldown(2.0f)); // Adjust the cooldown duration as needed
+        }
+    }
+
+    IEnumerator EnableDamageCooldown(float cooldownDuration)
+    {
+        canTakeDamage = false; // Player can't take damage during the cooldown
+
+        // Wait for the cooldown duration
+        yield return new WaitForSeconds(3f);
+
+        canTakeDamage = true; // Player can take damage again after the cooldown
     }
 
     void OnTriggerEnter(Collider other)

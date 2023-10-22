@@ -16,11 +16,14 @@ public class EnemyMelee : MonoBehaviour
     private NavMeshAgent navMeshAgent;
     public LayerMask groundLayer;
 
+    public delegate void EnemyAttackEvent();
+    public event EnemyAttackEvent OnEnemyAttack;
+
     private bool isAttacking = false; // Track if the enemy is currently attacking.
 
     void Start()
     {
-        animator = GetComponent<Animator>();
+        animator = GetComponent <Animator>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         // Initialize the NavMeshAgent component.
@@ -44,6 +47,12 @@ public class EnemyMelee : MonoBehaviour
         animator.SetBool("IsIdle", true);
         yield return new WaitForSeconds(Random.Range(3f, 6f));
         animator.SetBool("IsIdle", false);
+
+        if (isAttacking)
+        {
+            // Trigger the attack event on the enemy
+            OnEnemyAttack?.Invoke();
+        }
     }
 
     IEnumerator WalkState()
@@ -60,6 +69,12 @@ public class EnemyMelee : MonoBehaviour
         animator.SetBool("IsWalking", true);
         yield return new WaitForSeconds(Random.Range(3f, 6f));
         animator.SetBool("IsWalking", false);
+
+        if (isAttacking)
+        {
+            // Trigger the attack event on the enemy
+            OnEnemyAttack?.Invoke();
+        }
     }
 
     void Update()
@@ -90,7 +105,6 @@ public class EnemyMelee : MonoBehaviour
                 animator.SetBool("IsRunning", true);
                 navMeshAgent.speed = runSpeed;
 
-                // Check if the enemy is within the attack range.
                 if (distanceToPlayer <= attackRange && !isAttacking)
                 {
                     // Stop the enemy.
@@ -103,21 +117,18 @@ public class EnemyMelee : MonoBehaviour
                     // Set the attacking state.
                     isAttacking = true;
                 }
-                else
+                else if (distanceToPlayer > attackRange && isAttacking)
                 {
-                    // Player is in chase range but not in attack range.
-                    // Stop the Melee animation and move towards the player.
-                    if (isAttacking)
-                    {
-                        animator.SetBool("Melee", false); // Stop the Melee animation.
-                        isAttacking = false;
-                    }
+                    // If the player is out of attack range and we were attacking, reset states.
+                    navMeshAgent.isStopped = false;
+                    animator.SetBool("Melee", false);
+                    isAttacking = false;
+                }
 
-                    // Set the destination only if the NavMeshAgent is not already running.
-                    if (!navMeshAgent.pathPending)
-                    {
-                        navMeshAgent.SetDestination(playerTransform.position);
-                    }
+                // Set the destination only if the NavMeshAgent is not already running.
+                if (!navMeshAgent.pathPending && !isAttacking)
+                {
+                    navMeshAgent.SetDestination(playerTransform.position);
                 }
             }
             else
@@ -134,6 +145,12 @@ public class EnemyMelee : MonoBehaviour
                 {
                     navMeshAgent.SetDestination(playerTransform.position);
                 }
+            }
+
+            if (isAttacking)
+            {
+                // Trigger the attack event on the enemy
+                OnEnemyAttack?.Invoke();
             }
         }
     }

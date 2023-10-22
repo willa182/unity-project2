@@ -14,6 +14,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource nightscreamAudioSource;
     public AudioSource heartBeatAudioSource;
     public AudioSource exploAudioSource;
+    public AudioSource flashLightAudioSource;
 
     void Awake()
     {
@@ -74,5 +75,9 @@ public class SoundManager : MonoBehaviour
     public void PlayExploSound()
     {
         exploAudioSource.Play();
+    }
+    public void PlayOnandOffSound()
+    {
+        flashLightAudioSource.Play();
     }
 }
