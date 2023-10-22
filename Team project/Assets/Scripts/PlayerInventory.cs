@@ -48,7 +48,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Input.GetKeyDown(pickupKey) && canPickup)
         {
-            TryPickupWeapon();
+            TryPickupWeaponLogic();
         }
 
         for (int i = 1; i <= quickslotSlots.Count; i++)
@@ -97,6 +97,10 @@ public class PlayerInventory : MonoBehaviour
                 UnequipWeapon();
                 InstantiateWeaponInHand(weaponsInventory[selectedWeaponIndex - 1]);
                 UpdateQuickslotUI();
+
+                // Stop the pickup animation
+                animator.SetBool("PickingUp", false);
+                isPickupAnimationPlaying = false;
             }
             else
             {
@@ -109,9 +113,8 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    void TryPickupWeapon()
+    public void TryPickupWeaponLogic()
     {
-        // Check if there's an object with the desired layer tag nearby
         Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
         bool canPickup = false;
 
@@ -120,18 +123,72 @@ public class PlayerInventory : MonoBehaviour
             if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
             {
                 canPickup = true;
-                break; // No need to check further once we find a valid object
+                break;
             }
         }
 
-        if (canPickup && !isPickupAnimationPlaying && canPickup)
+        if (canPickup && !isPickupAnimationPlaying)
         {
-            Debug.Log("PickingUp animation triggered.");
-            animator.SetBool("PickingUp", true);
-            isPickupAnimationPlaying = true;
+            // Find the Weapon component on the pickup object
+            Weapon weaponPrefab = null;
+            GameObject weaponObject = null;
 
-            StartCoroutine(ResetPickupFlag());
+            foreach (Collider collider in colliders)
+            {
+                Weapon weaponComponent = collider.GetComponent<Weapon>();
+                if (weaponComponent != null)
+                {
+                    weaponPrefab = weaponComponent;
+                    weaponObject = collider.gameObject;
+                    break;
+                }
+            }
+
+            if (weaponPrefab != null && weaponObject != null)
+            {
+                  // Start the pickup animation
+                  animator.SetBool("PickingUp", true);
+                  isPickupAnimationPlaying = true;
+
+                  // Perform the pickup logic by calling your existing method with both parameters
+                  PickupWeapon(weaponPrefab, weaponObject);
+
+                  // Start a coroutine to check if the weapon object is destroyed
+                  StartCoroutine(CheckWeaponDestroyed(weaponObject));
+            }
         }
+    }
+
+    private IEnumerator CheckWeaponDestroyed(GameObject weaponObject)
+    {
+        while (true)
+        {
+            // Check if the weapon object has been destroyed
+            if (weaponObject == null)
+            {
+                // The weapon object has been destroyed, stop the animation
+                animator.SetBool("PickingUp", false);
+                isPickupAnimationPlaying = false;
+                yield break;
+            }
+            yield return null;
+        }
+    }
+
+    public IEnumerator PickupProcess()
+    {
+        // Start the pickup animation
+        animator.SetBool("PickingUp", true);
+        isPickupAnimationPlaying = true;
+
+        yield return new WaitForSeconds(0.5f); // Wait for 0.5 seconds
+
+        // Handle the actual weapon pickup logic here
+        TryPickupWeaponLogic();
+
+        // Disable the pickup animation
+        animator.SetBool("PickingUp", false);
+        isPickupAnimationPlaying = false;
     }
 
     public IEnumerator ResetPickupFlag()
@@ -173,36 +230,41 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
+   private void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
     {
         canPickup = false;
 
         AddWeapon(weaponPrefab);
 
-        Destroy(weaponObject, 1f);
+        Destroy(weaponObject, 0.8f);
 
         canPickup = true;
     }
 
     public void AddWeapon(Weapon weapon)
     {
-        int emptySlotIndex = weaponsInventory.FindIndex(w => !w.IsPickedUp);
+        bool weaponAlreadyInInventory = weaponsInventory.Contains(weapon);
 
-        if (emptySlotIndex != -1)
+        if (!weaponAlreadyInInventory)
         {
-            weaponsInventory[emptySlotIndex] = weapon;
-        }
-        else if (weaponsInventory.Count < 3)
-        {
-            weaponsInventory.Add(weapon);
-        }
-        else
-        {
-            Debug.Log("Quickslots are full!");
-            return;
-        }
+            int emptySlotIndex = weaponsInventory.FindIndex(w => !w.IsPickedUp);
 
-        UpdateQuickslotUI();
+            if (emptySlotIndex != -1)
+            {
+                weaponsInventory[emptySlotIndex] = weapon;
+            }
+            else if (weaponsInventory.Count < 3)
+            {
+                weaponsInventory.Add(weapon);
+            }
+            else
+            {
+                Debug.Log("Quickslots are full!");
+                return;
+            }
+
+            UpdateQuickslotUI();
+        }
     }
 
     void InstantiateWeaponInHand(Weapon selectedWeapon)

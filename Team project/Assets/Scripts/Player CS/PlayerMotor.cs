@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,7 +31,6 @@ public class PlayerMotor : MonoBehaviour
     private bool StrafeRight;
 
     private bool canPickup = true;
-    private bool isPickupAnimationPlaying = false;
 
     private PlayerHealthManager healthManager;
 
@@ -107,16 +107,28 @@ public class PlayerMotor : MonoBehaviour
                 animator.SetBool("Melee", true);
                 Invoke("ResetMeleeFlag", 1f);
             }
-            if (Input.GetKeyDown(KeyCode.E) && !isPickupAnimationPlaying && canPickup)
+
+            if (Input.GetKey(KeyCode.A) && IsGrounded)
             {
-                TryPickupAnimation();
+                animator.SetBool("IsStrafingLeft", true);
+                gunFires.SetAimingState(false);
+            }
+            else
+            {
+                animator.SetBool("IsStrafingLeft", false);
+                gunFires.SetAimingState(true);
             }
 
-            StrafeLeft = Input.GetKey(KeyCode.A);
-            animator.SetBool("IsStrafingLeft", StrafeLeft);
-
-            StrafeRight = Input.GetKey(KeyCode.D);
-            animator.SetBool("IsStrafingRight", StrafeRight);
+            if (Input.GetKey(KeyCode.D) && IsGrounded)
+            {
+                animator.SetBool("IsStrafingRight", true);
+                gunFires.SetAimingState(false);
+            }
+            else
+            {
+                animator.SetBool("IsStrafingRight", false);
+                gunFires.SetAimingState(true);
+            }
 
             if (!IsGrounded)
             {
@@ -141,36 +153,16 @@ public class PlayerMotor : MonoBehaviour
         UpdateStaminaUI();
     }
 
-    void TryPickupAnimation()
+    void TryPickupWeapon()
     {
         PlayerInventory playerInventory = GetComponent<PlayerInventory>();
 
         if (playerInventory != null && playerInventory.CanPickUp())
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
-            bool canPickup = false;
-
-            foreach (Collider collider in colliders)
-            {
-                if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
-                {
-                    canPickup = true;
-                    break;
-                }
-            }
-
-            if (canPickup)
-            {
-                Debug.Log("PickingUp animation triggered.");
-                animator.SetBool("IsPickingUp", true);
-                isPickupAnimationPlaying = true;
-                Controller.enabled = false;
-
-                // Coroutine to reset pickup flags and continue the animation
-                StartCoroutine(playerInventory.ResetPickupFlag());
-            }
+            StartCoroutine(playerInventory.PickupProcess());
         }
     }
+
 
     public void ProcessMove(Vector2 input)
     {

@@ -145,10 +145,22 @@ public class GunFires : MonoBehaviour
     {
         while (Input.GetButton("Fire1") && IsAutomaticWeapon())
         {
-            PlayWeaponFireSound();
+            PlayWeaponFireSound(); 
             Shoot();
             playerAnimator.SetTrigger("IsShooting");
             yield return null;
+        }
+        StopWeaponFireSound(); 
+    }
+
+    void StopWeaponFireSound()
+    {
+        foreach (Transform weaponTransform in playerHand)
+        {
+            if (weaponTransform.CompareTag("Rifle"))
+            {
+                soundManager.StopRifleFireSound();
+            }
         }
     }
 

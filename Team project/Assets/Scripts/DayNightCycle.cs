@@ -7,75 +7,19 @@ public class DayNightCycle : MonoBehaviour
 {
     public Text timerText;
     public Light directionalLight;
-    public Material daySkyboxMaterial;
-    public Material nightSkyboxMaterial;
-    public float dayDurationInSeconds = 60f;
-    public float transitionDurationInSeconds = 5f;
-    public float timeMultiplier = 60f;
+    public Material nightSkyboxMaterial; // Only the night skybox is needed
 
     public List<Light> spotlights;
-    public SoundManager soundManager;
 
-    private float currentTime = 8 * 60 * 60;
-    private bool isDay = true;
+    private float currentTime = 0; // Start at night
 
     private void Start()
     {
+        RenderSettings.skybox = nightSkyboxMaterial; // Set the night skybox
+        directionalLight.enabled = false; // Turn off directional light at night
+        SetSpotlightsActive(true); // Enable spotlights
         UpdateTimerText();
     }
-
-    private void Update()
-    {
-        currentTime += Time.deltaTime * timeMultiplier;
-
-        if (currentTime >= (19 * 60 * 60) && isDay)
-        {
-            isDay = false;
-            StartCoroutine(TransitionDayNight());
-            RenderSettings.skybox = nightSkyboxMaterial;
-            directionalLight.enabled = false;
-            SetSpotlightsActive(true);
-
-            // Play Night Scream sound
-            if (soundManager != null)
-            {
-                soundManager.PlayNightscreamSound();
-            }
-        }
-
-        if (currentTime >= (24 * 60 * 60))
-        {
-            currentTime -= 24 * 60 * 60;
-        }
-
-        if (currentTime >= (7 * 60 * 60) && currentTime < (8 * 60 * 60) && !isDay)
-        {
-            isDay = true;
-            RenderSettings.skybox = daySkyboxMaterial;
-            directionalLight.enabled = true;
-            SetSpotlightsActive(false);
-        }
-
-        UpdateTimerText();
-
-        float angle = Mathf.Lerp(0, 180, Mathf.Clamp01(currentTime / (24 * 60 * 60)));
-        directionalLight.transform.rotation = Quaternion.Euler(angle, 0, 0);
-    }
-
-    private IEnumerator TransitionDayNight()
-    {
-        float t = 0f;
-        Color startColor = Color.white;
-        Color endColor = Color.black;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / transitionDurationInSeconds;
-            RenderSettings.ambientLight = Color.Lerp(startColor, endColor, t);
-            yield return null;
-        }
-    }
-
 
     private void UpdateTimerText()
     {

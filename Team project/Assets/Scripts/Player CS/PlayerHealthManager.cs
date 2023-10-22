@@ -16,6 +16,8 @@ public class PlayerHealthManager : MonoBehaviour
     private InputManager inputManager;
 
     Animator animator;
+    public int lowHealthThreshold = 25;
+    private bool hasPlayedLowHealthSound = false;
 
     public Image flashCanvas;
     public Slider healthSlider;
@@ -25,6 +27,8 @@ public class PlayerHealthManager : MonoBehaviour
 
     private float flashCounter;
     private bool isDead = false; 
+
+    private SoundManager soundManager;
 
     void Start()
     {
@@ -37,7 +41,7 @@ public class PlayerHealthManager : MonoBehaviour
         currentHealth = startingHealth;
         flashCanvas.enabled = false;
         animator = GetComponent<Animator>();
-
+        soundManager = SoundManager.instance;
         UpdateHealthBar();
     }
 
@@ -79,9 +83,9 @@ public class PlayerHealthManager : MonoBehaviour
 
     void Update()
     {
-        if (currentHealth <= 0 && !isDead) 
+        if (currentHealth <= 0 && !isDead)
         {
-            isDead = true; 
+            isDead = true;
             animator.SetTrigger("Death");
 
             if (characterController != null)
@@ -92,7 +96,15 @@ public class PlayerHealthManager : MonoBehaviour
                 playerMotor.enabled = false;
                 gunFire.enabled = false;
                 inputManager.enabled = false;
+                soundManager.StopHeartBeatSound();
             }
+        }
+
+        // Check for low health and play heartbeat sound once
+        if (currentHealth <= lowHealthThreshold && !hasPlayedLowHealthSound)
+        {
+            soundManager.PlayHeartBeatSound();
+            hasPlayedLowHealthSound = true; // Set the flag to prevent looping
         }
 
         if (flashCounter > 0)

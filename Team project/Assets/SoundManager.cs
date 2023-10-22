@@ -12,6 +12,8 @@ public class SoundManager : MonoBehaviour
     public AudioSource rifleAudioSource;
     public AudioSource shotgunAudioSource;
     public AudioSource nightscreamAudioSource;
+    public AudioSource heartBeatAudioSource;
+    public AudioSource exploAudioSource;
 
     void Awake()
     {
@@ -41,6 +43,11 @@ public class SoundManager : MonoBehaviour
     {
         rifleAudioSource.Play();
     }
+    // Stop rifle fire sound
+    public void StopRifleFireSound()
+    {
+        rifleAudioSource.Stop();
+    }
 
     // Play shotgun fire sound
     public void PlayShotgunFireSound()
@@ -51,5 +58,21 @@ public class SoundManager : MonoBehaviour
     public void PlayNightscreamSound()
     {
         nightscreamAudioSource.Play();
+    }
+
+    // Play heartbeat sound
+    public void PlayHeartBeatSound()
+    {
+        heartBeatAudioSource.Play();
+    }
+    // Stop heartbeat sound
+    public void StopHeartBeatSound()
+    {
+        heartBeatAudioSource.Stop();
+    }
+    // Play Explo sound
+    public void PlayExploSound()
+    {
+        exploAudioSource.Play();
     }
 }
