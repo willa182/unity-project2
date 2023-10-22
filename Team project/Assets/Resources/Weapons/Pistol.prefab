@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 465219175912691727}
   - component: {fileID: 965122724455233182}
   - component: {fileID: 8058339254466377530}
-  - component: {fileID: 2114643201309757698}
   - component: {fileID: 1283146077990963767}
   m_Layer: 7
   m_Name: Pistol
@@ -89,27 +88,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2114643201309757698
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3481397233780424008}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0.0000000065192576, y: 0.03860897, z: 0.07738222}
 --- !u!114 &1283146077990963767
 MonoBehaviour:
   m_ObjectHideFlags: 0

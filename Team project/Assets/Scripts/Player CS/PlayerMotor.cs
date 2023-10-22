@@ -31,6 +31,7 @@ public class PlayerMotor : MonoBehaviour
     private bool StrafeRight;
 
     private bool canPickup = true;
+    private SoundManager soundManager;
 
     private PlayerHealthManager healthManager;
 
@@ -40,6 +41,7 @@ public class PlayerMotor : MonoBehaviour
         animator = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
         healthManager = GetComponent<PlayerHealthManager>();
+        soundManager = SoundManager.instance;
 
         gunFires = GetComponent<GunFires>();
         if (gunFires == null)
@@ -54,11 +56,48 @@ public class PlayerMotor : MonoBehaviour
         IsGrounded = Physics.CheckSphere(groundCheck.transform.position, groundCheckRadius, groundMask);
 
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-        Move = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S)) && stamina > 0;
 
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
 
         animator.SetBool("IsRunning", Move && isSprinting);
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            animator.SetTrigger("IsThrowing");
+        }
+
+        if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting)
+        {
+            animator.SetBool("IsRunning", true);
+            DrainStamina();
+        }
+        else
+        {
+            animator.SetBool("IsRunning", false);
+        }
+
+        // Regenerate stamina when not sprinting
+        if (!isSprinting && stamina < 100f)
+        {
+            stamina += staminaRegenRate * Time.deltaTime;
+        }
+
+        if (Input.GetKey(KeyCode.S) && IsGrounded && isSprinting)
+        {
+            animator.SetBool("IsRunning", true);
+            DrainStamina();
+        }
+        else
+        {
+            animator.SetBool("IsRunning", false);
+        }
+
+        // Regenerate stamina when not sprinting
+        if (!isSprinting && stamina < 100f)
+        {
+            stamina += staminaRegenRate * Time.deltaTime;
+        }
+
 
         if (Input.GetKey(KeyCode.W) && IsGrounded)
         {
@@ -143,6 +182,15 @@ public class PlayerMotor : MonoBehaviour
             if (Move && IsGrounded)
             {
                 DrainStamina();
+
+                if (stamina <= 0)
+                {
+                    soundManager.PlayOutOfBreathSound();
+                }
+                else if (stamina > 50)
+                {
+                    soundManager.StopOutOfBreathSound();
+                }
             }
             else
             {
@@ -186,14 +234,10 @@ public class PlayerMotor : MonoBehaviour
     {
         if (IsGrounded)
         {
-            if ((IsIdle || (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))) && !StrafeLeft && !StrafeRight)
+            if (IsIdle || Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D) && !StrafeLeft && !StrafeRight)
             {
                 playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
-                animator.SetBool("IsJumping", true);
-            }
-            else
-            {
-                animator.SetBool("IsJumping", false);
+                animator.SetTrigger("IsJumping");
             }
         }
     }
@@ -208,7 +252,7 @@ public class PlayerMotor : MonoBehaviour
 
     private void RegenerateStamina()
     {
-        if (!Move && stamina < 100f)
+        if (!Input.GetKey(KeyCode.LeftShift) && stamina < 100f)
         {
             stamina += staminaRegenRate * Time.deltaTime;
         }

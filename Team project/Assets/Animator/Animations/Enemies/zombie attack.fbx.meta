@@ -58,7 +58,7 @@ ModelImporter:
       curves: []
       events:
       - time: 0.3492312
-        functionName: HurtPlayer()
+        functionName: AttackPlayer
         data: 
         objectReferenceParameter: {fileID: 4557455430513716437, guid: 3432e51aedf49fd4e82d54d6ff193831, type: 3}
         floatParameter: 0

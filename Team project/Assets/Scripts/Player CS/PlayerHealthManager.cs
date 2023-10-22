@@ -15,6 +15,7 @@ public class PlayerHealthManager : MonoBehaviour
     private GunFires gunFire;
     private PlayerInventory playerInventory;
     private InputManager inputManager;
+    private FlashLight flashLight;
 
     Animator animator;
     public int lowHealthThreshold = 25;
@@ -31,7 +32,6 @@ public class PlayerHealthManager : MonoBehaviour
 
     public EnemyMelee enemyScript; // Reference to the EnemyMelee script
     public int damageAmount = 10; // Define the damage amount
-    private bool canTakeDamage = true; // Flag to control when the player can take damage
 
     private SoundManager soundManager;
 
@@ -43,45 +43,14 @@ public class PlayerHealthManager : MonoBehaviour
         gunFire = GetComponent<GunFires>();
         playerInventory = GetComponent<PlayerInventory>();
         inputManager = GetComponent<InputManager>();
+        flashLight = GetComponent<FlashLight>();
         currentHealth = startingHealth;
         flashCanvas.enabled = false;
         animator = GetComponent<Animator>();
         soundManager = SoundManager.instance;
         UpdateHealthBar();
-        if (enemyScript != null)
-        {
-            // Subscribe to the enemy's attack event
-            enemyScript.OnEnemyAttack += HandleEnemyAttack;
-        }
-        else
-        {
-            Debug.LogError("EnemyMelee reference is not assigned in the Inspector.");
-        }
-
     }
 
-    void HandleEnemyAttack()
-    {
-        // Check if the player can take damage (based on cooldown or other conditions)
-        if (canTakeDamage)
-        {
-            // Handle the player's damage when the enemy attacks
-            HurtPlayer(damageAmount);
-
-            // Set a cooldown before the player can take damage again
-            StartCoroutine(EnableDamageCooldown(2.0f)); // Adjust the cooldown duration as needed
-        }
-    }
-
-    IEnumerator EnableDamageCooldown(float cooldownDuration)
-    {
-        canTakeDamage = false; // Player can't take damage during the cooldown
-
-        // Wait for the cooldown duration
-        yield return new WaitForSeconds(3f);
-
-        canTakeDamage = true; // Player can take damage again after the cooldown
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -135,6 +104,7 @@ public class PlayerHealthManager : MonoBehaviour
                 gunFire.enabled = false;
                 inputManager.enabled = false;
                 soundManager.StopHeartBeatSound();
+                flashLight.enabled = false;
             }
         }
 
@@ -179,6 +149,8 @@ public class PlayerHealthManager : MonoBehaviour
                     playerMotor.enabled = false;
                     gunFire.enabled = false;
                     inputManager.enabled = false;
+                    soundManager.StopHeartBeatSound();
+                    flashLight.enabled = false;
                 }
             }
         }
