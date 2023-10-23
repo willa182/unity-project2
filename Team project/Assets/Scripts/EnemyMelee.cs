@@ -79,9 +79,6 @@ public class EnemyMelee : MonoBehaviour
 
             // Face the player when screaming
             FacePlayer();
-
-            // Slow down the NavMeshAgent to a stop, don't stop it completely.
-            navMeshAgent.speed = 0f;
         }
         else
         {
@@ -100,11 +97,13 @@ public class EnemyMelee : MonoBehaviour
                     // Stop the enemy.
                     navMeshAgent.isStopped = true;
                     animator.SetBool("IsRunning", false);
+                    animator.SetBool("IsWalking", false);
 
-                    // Play the Melee animation for attacking.
-                    animator.SetBool("Melee", true);
+                    // Set the Melee trigger for attacking.
+                    animator.SetTrigger("Melee");
 
                     // Set the attacking state.
+                    Debug.Log("Attacking is set to true");
                     isAttacking = true;
                     lastAttackTime = Time.time;
                 }
@@ -112,12 +111,12 @@ public class EnemyMelee : MonoBehaviour
                 {
                     // If the player is out of attack range and we were attacking, reset states.
                     navMeshAgent.isStopped = false;
-                    animator.SetBool("Melee", false);
                     isAttacking = false;
-                }
 
-                // Set the destination only if the NavMeshAgent is not already running.
-                if (!navMeshAgent.pathPending && !isAttacking)
+                    // Set the running animation to true when not attacking
+                    animator.SetBool("IsRunning", true);
+                }
+                if (!isAttacking)
                 {
                     navMeshAgent.SetDestination(playerTransform.position);
                 }
@@ -127,15 +126,11 @@ public class EnemyMelee : MonoBehaviour
                 // Player is out of chase range
                 animator.SetBool("IsRunning", false);
                 navMeshAgent.speed = walkSpeed;
-                navMeshAgent.isStopped = false;
                 animator.SetBool("Melee", false); // Ensure Melee is disabled when not in attack range.
                 isAttacking = false; // Reset the attacking state.
 
-                // Resume following the player when not attacking.
-                if (!isAttacking)
-                {
-                    navMeshAgent.SetDestination(playerTransform.position);
-                }
+                // Set the idle animation to true when not attacking and not in chase range
+                animator.SetBool("IsIdle", true);
             }
         }
     }

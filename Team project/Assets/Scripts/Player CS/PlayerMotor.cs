@@ -21,6 +21,7 @@ public class PlayerMotor : MonoBehaviour
 
     private bool IsIdle;
     public float sprintSpeedMultiplier = 1.5f;
+    private bool IsWalkingOrRunningForward;
 
     Animator animator;
     GunFires gunFires;
@@ -59,12 +60,19 @@ public class PlayerMotor : MonoBehaviour
 
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
 
-        animator.SetBool("IsRunning", Move && isSprinting);
-
         if (Input.GetKeyDown(KeyCode.G))
         {
             animator.SetTrigger("IsThrowing");
         }
+
+        if (IsWalkingOrRunningForward && Input.GetKeyDown(KeyCode.C) && IsGrounded)
+        {
+            animator.SetTrigger("IsDiving");
+        }
+
+        // Check if the player is walking or running forward
+        IsWalkingOrRunningForward = Input.GetKey(KeyCode.W) || (Input.GetKey(KeyCode.W) && isSprinting);
+
 
         if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting)
         {
@@ -84,12 +92,12 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKey(KeyCode.S) && IsGrounded && isSprinting)
         {
-            animator.SetBool("IsRunning", true);
+            animator.SetBool("IsRunningBackwards", true);
             DrainStamina();
         }
         else
         {
-            animator.SetBool("IsRunning", false);
+            animator.SetBool("IsRunningBackwards", false);
         }
 
         // Regenerate stamina when not sprinting
