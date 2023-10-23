@@ -27,8 +27,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3481397233780424008}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.29109052, y: 0.59214175, z: 0.47614032, w: -0.5813131}
-  m_LocalPosition: {x: 0, y: 0.00068, z: -0.00041}
+  m_LocalRotation: {x: 0.44055182, y: -0.51295537, z: -0.48925388, w: -0.5508371}
+  m_LocalPosition: {x: 0.0131, y: 0.0712, z: 0.0249}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -37,7 +37,7 @@ Transform:
   - {fileID: 6513267254048474136}
   - {fileID: 6806609587985118633}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -64.464, y: 287.45, z: -28.977}
+  m_LocalEulerAnglesHint: {x: -80.85, y: 417.44, z: 33.182}
 --- !u!33 &965122724455233182
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -103,8 +103,8 @@ MonoBehaviour:
   weaponName: Pistol
   sprite: {fileID: 21300000, guid: d7c82189f43fd9a49a35ad556937b500, type: 3}
   transformSettings:
-    position: {x: 0, y: 0.00068, z: -0.00041}
-    rotation: {x: 0.29109114, y: 0.59214157, z: 0.47614035, w: -0.58131295}
+    position: {x: 0.0131, y: 0.0712, z: 0.0249}
+    rotation: {x: 0.44055203, y: -0.51295555, z: -0.48925418, w: -0.5508365}
     scale: {x: 1, y: 1, z: 1}
 --- !u!1 &4514435768398991545
 GameObject:
