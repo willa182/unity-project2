@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class EnemyHealthManager : MonoBehaviour
 {
     public int health;
-    private int currentHealth;
+    public int currentHealth;
 
     public float flashLength;
     private float flashCounter;
@@ -20,9 +20,13 @@ public class EnemyHealthManager : MonoBehaviour
 
     private Transform player;
     private NavMeshAgent navMeshAgent;
+    Animator animator;
 
     public float moveSpeed = 5f;
+    private System.Random random = new System.Random();
 
+    private EnemyMelee randomwalk;
+    private bool screamTriggerActivated = false;
 
     // Start is called before the first frame update
     void Start()
@@ -32,12 +36,11 @@ public class EnemyHealthManager : MonoBehaviour
         storedColor = rend.material.GetColor("_Color");
 
         navMeshAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
         healthBar.gameObject.SetActive(false);
 
 
         sliderRectTransform = healthBar.GetComponent<RectTransform>();
-
-
         player = GameObject.FindWithTag("Player").transform;
     }
 
@@ -74,19 +77,23 @@ public class EnemyHealthManager : MonoBehaviour
         if (currentHealth <= 0)
         {
             Destroy(gameObject);
-
             healthBar.gameObject.SetActive(false);
         }
         else
         {
-
             healthBar.value = currentHealth;
 
+            // Check if the health is below 25% and the scream trigger is not activated
+            if (currentHealth <= health * 0.25f && !screamTriggerActivated)
+            {
+                // Set the Scream Trigger active
+                animator.SetTrigger("ScreamTrigger");
+                screamTriggerActivated = true;
+            }
 
             Vector3 worldPos = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
             Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
             sliderRectTransform.position = screenPoint;
-
 
             if (flashCounter > 0)
             {
@@ -97,6 +104,23 @@ public class EnemyHealthManager : MonoBehaviour
 
     public void HurtEnemy(int damageAmount)
     {
+        int randomChance = random.Next(100);
+
+        // Check for IsStumbling and set the flag.
+        if (randomChance < 25)
+        {
+            animator.SetTrigger("IsTakingHit");
+
+            if (random.Next(100) < 10)
+            {
+                animator.SetTrigger("IsStumbling");
+                animator.SetBool("IsWalking", false);
+                animator.SetBool("IsRunning", false);
+                navMeshAgent.speed = 0f;
+                randomwalk.isRandomWalkEnabled = false;
+            }
+        }
+
         if (flashCounter <= 0)
         {
             currentHealth -= damageAmount;
@@ -104,6 +128,7 @@ public class EnemyHealthManager : MonoBehaviour
             rend.material.SetColor("_Color", Color.black);
         }
     }
+
 
     public bool IsFlashing()
     {
@@ -125,4 +150,3 @@ public class EnemyHealthManager : MonoBehaviour
         }
     }
 }
-    

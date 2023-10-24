@@ -1,162 +1,128 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyMelee : MonoBehaviour
 {
-    public float walkSpeed = 2f;
-    public float runSpeed = 5f;
-    public float chaseRange = 30f;
+    public float walkPointRange = 10f;
+    public float sightRange = 5f;
     public float attackRange = 2f;
-    public float screamRange = 35f;
+    public float walkSpeed = 2f;
+    public float runSpeed = 6f;
+    public float attackCooldown = 2f; // Cooldown time after an attack
 
-    private Animator animator;
-    private Transform playerTransform;
-    private bool isScreaming = false;
-    private NavMeshAgent navMeshAgent;
-    public LayerMask groundLayer;
-    private PlayerHealthManager playerHealthManager;
+    private Transform player;
+    private NavMeshAgent agent;
+    private Vector3 walkPoint;
+    private bool playerInSightRange;
+    private bool playerInAttackRange;
+    private bool isAttacking = false;
+    private bool cooldownActive = false;
 
-    private bool isAttacking = false; // Track if the enemy is currently attacking.
-    private float attackCooldown = 3.0f; // Time between attacks
-    private float lastAttackTime;
-
-    public int damageAmount = 10;
+    Animator animator;
+   public bool isRandomWalkEnabled = true;
 
     void Start()
     {
+        player = GameObject.FindWithTag("Player").transform;
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = walkSpeed;
         animator = GetComponent<Animator>();
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        playerHealthManager = FindObjectOfType<PlayerHealthManager>();
-        // Initialize the NavMeshAgent component.
-        navMeshAgent = GetComponent<NavMeshAgent>();
-        navMeshAgent.speed = walkSpeed; // Set initial speed.
-
-        StartCoroutine(EnemyBehavior());
-    }
-
-    IEnumerator EnemyBehavior()
-    {
-        while (true)
-        {
-            yield return StartCoroutine(IdleState());
-            yield return StartCoroutine(WalkState());
-        }
-    }
-
-    IEnumerator IdleState()
-    {
-        animator.SetBool("IsIdle", true);
-        yield return new WaitForSeconds(Random.Range(3f, 6f));
-        animator.SetBool("IsIdle", false);
-    }
-
-    IEnumerator WalkState()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * 10f;
-        randomDirection += transform.position;
-        NavMeshHit hit;
-        NavMesh.SamplePosition(randomDirection, out hit, 10f, NavMesh.AllAreas);
-
-        // Set the NavMeshAgent's destination.
-        navMeshAgent.SetDestination(hit.position);
-        navMeshAgent.speed = walkSpeed; // Set the walking speed.
-
-        animator.SetBool("IsWalking", true);
-        yield return new WaitForSeconds(Random.Range(3f, 6f));
-        animator.SetBool("IsWalking", false);
+        StartCoroutine(RandomWalk());
     }
 
     void Update()
     {
-        float distanceToPlayer = Vector3.Distance(playerTransform.position, transform.position);
+        playerInSightRange = Vector3.Distance(transform.position, player.position) <= sightRange;
+        playerInAttackRange = Vector3.Distance(transform.position, player.position) <= attackRange;
 
-        if (distanceToPlayer < screamRange && distanceToPlayer >= chaseRange)
+        if (cooldownActive)
         {
-            // Player is in scream range but not in chase range
-            animator.SetBool("Scream", true);
-            isScreaming = true;
+            // Enemy is on cooldown, don't move or attack
+            return;
+        }
 
-            // Face the player when screaming
-            FacePlayer();
+        if (playerInSightRange && !playerInAttackRange)
+        {
+            animator.SetBool("IsRunning", true);
+            animator.SetBool("IsWalking", true);
+            animator.ResetTrigger("Melee"); // Reset the attack trigger.
+            agent.speed = runSpeed;
+            agent.SetDestination(player.position);
+        }
+        else if (playerInAttackRange)
+        {
+            if (!isAttacking)
+            {
+                StartCoroutine(AttackPlayer());
+            }
         }
         else
         {
-            // Player is either in chase range or out of scream range
-            animator.SetBool("Scream", false);
-            isScreaming = false;
+            animator.SetBool("IsRunning", false);
+            animator.SetBool("IsWalking", true);
+            animator.ResetTrigger("Melee"); // Reset the attack trigger.
+            agent.speed = walkSpeed;
+        }
+    }
 
-            if (distanceToPlayer < chaseRange)
+    IEnumerator RandomWalk()
+    {
+        while (isRandomWalkEnabled) // Check the flag
+        {
+            if (!playerInSightRange)
             {
-                // If the player is in chase range, set IsRunning animation and run towards the player.
-                animator.SetBool("IsRunning", true);
-                navMeshAgent.speed = runSpeed;
+                animator.SetBool("IsWalking", true);
+                Vector3 randomDirection = Random.insideUnitSphere * walkPointRange;
+                randomDirection += transform.position;
+                NavMeshHit hit;
+                NavMesh.SamplePosition(randomDirection, out hit, walkPointRange, 1);
+                walkPoint = hit.position;
+                agent.SetDestination(walkPoint);
 
-                if (distanceToPlayer <= attackRange && !isAttacking && Time.time - lastAttackTime >= attackCooldown)
-                {
-                    // Stop the enemy.
-                    navMeshAgent.isStopped = true;
-                    animator.SetBool("IsRunning", false);
-                    animator.SetBool("IsWalking", false);
-
-                    // Set the Melee trigger for attacking.
-                    animator.SetTrigger("Melee");
-
-                    // Set the attacking state.
-                    Debug.Log("Attacking is set to true");
-                    isAttacking = true;
-                    lastAttackTime = Time.time;
-                }
-                else if (distanceToPlayer > attackRange && isAttacking)
-                {
-                    // If the player is out of attack range and we were attacking, reset states.
-                    navMeshAgent.isStopped = false;
-                    isAttacking = false;
-
-                    // Set the running animation to true when not attacking
-                    animator.SetBool("IsRunning", true);
-                }
-                if (!isAttacking)
-                {
-                    navMeshAgent.SetDestination(playerTransform.position);
-                }
+                yield return new WaitForSeconds(Random.Range(4f, 8f));
             }
             else
             {
-                // Player is out of chase range
-                animator.SetBool("IsRunning", false);
-                navMeshAgent.speed = walkSpeed;
-                animator.SetBool("Melee", false); // Ensure Melee is disabled when not in attack range.
-                isAttacking = false; // Reset the attacking state.
-
-                // Set the idle animation to true when not attacking and not in chase range
-                animator.SetBool("IsIdle", true);
+                yield return null;
             }
         }
     }
 
-    void FacePlayer()
+    IEnumerator AttackPlayer()
     {
-        Vector3 directionToPlayer = (playerTransform.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToPlayer.x, 0, directionToPlayer.z));
+        isAttacking = true;
+        animator.SetBool("IsRunning", false);
+        animator.SetBool("IsWalking", false);
+        animator.SetTrigger("Melee"); // Use a trigger to start the attack animation.
+        agent.speed = 0f; // Stop moving
+        FaceTarget(); // Make the enemy face the player
+
+        // Start cooldown as soon as the Melee animation is triggered
+        cooldownActive = true;
+        yield return new WaitForSeconds(attackCooldown);
+
+        isAttacking = false;
+        cooldownActive = false; // Reset cooldown flag
+    }
+
+    void FaceTarget()
+    {
+        Vector3 direction = (player.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    // Called by Animation Event in the attack animation
-    public void AttackPlayer()
+    void ApplyDamageToPlayer()
     {
-        if (isAttacking)
-        {
-            // Check if the player health manager is available
-            if (playerHealthManager != null)
-            {
-                // Call the HurtPlayer method in the player's health manager
-                playerHealthManager.HurtPlayer(damageAmount);
-            }
+        int damageAmount = 10;
 
-            // Set the last attack time and reset the attack state
-            lastAttackTime = Time.time;
-            isAttacking = false;
+        PlayerHealthManager playerHealthManager = player.GetComponent<PlayerHealthManager>();
+
+        if (playerHealthManager != null)
+        {
+            playerHealthManager.HurtPlayer(damageAmount);
         }
     }
 }

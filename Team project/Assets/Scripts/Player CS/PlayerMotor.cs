@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,8 @@ public class PlayerMotor : MonoBehaviour
     public float staminaRegenRate = 5f;
     public float staminaDepletionRate = 10f;
     public Slider staminaSlider;
+    public Transform rightHand;
+    private float lastPressTime;
 
     private bool IsIdle;
     public float sprintSpeedMultiplier = 1.5f;
@@ -25,6 +28,9 @@ public class PlayerMotor : MonoBehaviour
 
     Animator animator;
     GunFires gunFires;
+    public Animator defaultAnimator;  // Reference to the default Animator Controller (no two-handed weapon).
+    public Animator twoHandedAnimator; // Reference to the Animator Controller for two-handed weapon state.
+
 
     private bool Craft; // For walking
     private bool Move;  // For running
@@ -35,6 +41,11 @@ public class PlayerMotor : MonoBehaviour
     private SoundManager soundManager;
 
     private PlayerHealthManager healthManager;
+    private bool IsHoldingTwoHandedWeapon = false;
+
+    private bool IsHoldingRifle = false;
+    private bool IsHoldingShotgun = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -51,14 +62,59 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    void CheckEquippedWeapons()
+    {
+        IsHoldingRifle = false;
+        IsHoldingShotgun = false;
+
+        Collider[] colliders = rightHand.GetComponentsInChildren<Collider>(true);
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("Rifle"))
+            {
+                IsHoldingRifle = true;
+            }
+            else if (collider.CompareTag("Shotgun"))
+            {
+                IsHoldingShotgun = true;
+            }
+        }
+    }
+
+    void SwitchToDefaultAnimator()
+    {
+        GetComponent<Animator>().runtimeAnimatorController = defaultAnimator.runtimeAnimatorController;
+    }
+
+    // Switch to the Animator Controller for two-handed weapon state.
+    void SwitchToTwoHandedAnimator()
+    {
+        GetComponent<Animator>().runtimeAnimatorController = twoHandedAnimator.runtimeAnimatorController;
+    }
+
+
     // Update is called once per frame
     void Update()
     {
         IsGrounded = Physics.CheckSphere(groundCheck.transform.position, groundCheckRadius, groundMask);
-
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
-
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
+
+        CheckEquippedWeapons();
+
+        // Enable or disable Animator Controllers based on equipped weapons.
+        if (IsHoldingRifle || IsHoldingShotgun)
+        {
+            // Switch to the Animator Controller for two-handed weapon state.
+            SwitchToTwoHandedAnimator();
+        }
+        else
+        {
+            // Switch to the default Animator Controller.
+            SwitchToDefaultAnimator();
+        }
+
 
         if (Input.GetKeyDown(KeyCode.G))
         {
@@ -151,8 +207,13 @@ public class PlayerMotor : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.F) && IsIdle)
             {
+                if (Time.time - lastPressTime < 0.3f) // Adjust the time window (0.3f) for quick succession
+                {
+                    animator.SetBool("MeleeAlternative", true);
+                }
+                lastPressTime = Time.time; // Update the last press time
                 animator.SetBool("Melee", true);
-                Invoke("ResetMeleeFlag", 1f);
+                Invoke("ResetMeleeFlag", 1f); Invoke("ResetMeleeFlag", 1f);
             }
 
             if (Input.GetKey(KeyCode.A) && IsGrounded)
@@ -280,6 +341,7 @@ public class PlayerMotor : MonoBehaviour
         if (IsIdle)
         {
             animator.SetBool("Melee", false);
+            animator.SetBool("MeleeAlternative", false);
         }
     }
 }

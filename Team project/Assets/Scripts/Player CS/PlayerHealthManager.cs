@@ -133,6 +133,7 @@ public class PlayerHealthManager : MonoBehaviour
             currentHealth -= damageAmount;
             flashCounter = flashLength;
             flashCanvas.enabled = true;
+            animator.SetTrigger("IsTakingHit");
 
             UpdateHealthBar();
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerBullets : MonoBehaviour
 {
-    public int damage = 1; 
+    public int damage = 10; 
 
     private void OnTriggerEnter(Collider other)
     {
@@ -12,7 +12,7 @@ public class PlayerBullets : MonoBehaviour
 
             if (enemyHealth != null)
             {
-                enemyHealth.HurtEnemy(damage);
+                enemyHealth.currentHealth -= damage;
             }
 
             Destroy(gameObject); 
