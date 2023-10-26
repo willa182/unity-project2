@@ -17,6 +17,7 @@ public class GunFires : MonoBehaviour
 
     private SoundManager soundManager;
     private bool isFiring = false;
+    public AmmoManager ammoManager; // Reference to the AmmoManager
 
     void Start()
     {
@@ -32,6 +33,13 @@ public class GunFires : MonoBehaviour
         }
 
         SetAimingState(false);
+
+        // Find the AmmoManager script and assign it to ammoManager
+        ammoManager = FindObjectOfType<AmmoManager>();
+        if (ammoManager == null)
+        {
+            Debug.LogError("AmmoManager script not found in the scene.");
+        }
     }
 
     void Update()
@@ -42,26 +50,63 @@ public class GunFires : MonoBehaviour
             {
                 if (Input.GetButtonDown("Fire1") && IsAutomaticWeapon())
                 {
+                    Debug.Log("Firing automatic weapon.");
                     StartCoroutine(AutomaticFire());
+                    ammoManager.UpdateAmmoOnFire();
                 }
                 else if (Input.GetButtonDown("Fire1"))
                 {
-                    StartCoroutine(ShootWithDelay());
+                    Debug.Log("Firing single shot.");
+                    if (ammoManager.currentAmmo > 0)
+                    {
+                        StartCoroutine(ShootWithDelay());
+                        ammoManager.UpdateAmmoOnFire(); // Call this after firing
+                        PlayWeaponFireSound();
+                    }
+                    else
+                    {
+                        ammoManager.Reload();
+                    }
                 }
             }
             else if (IsMoving() && Input.GetButtonDown("Fire1"))
             {
-                StartCoroutine(ShootWithDelay());
+                Debug.Log("Firing while moving.");
+                if (ammoManager.currentAmmo > 0)
+                {
+                    StartCoroutine(ShootWithDelay());
+                    StartCoroutine(AutomaticFire());
+                    ammoManager.UpdateAmmoOnFire();
+                    PlayWeaponFireSound();
+                }
+                else
+                {
+                    ammoManager.Reload();
+                }
             }
         }
     }
 
+
     IEnumerator ShootWithDelay()
     {
-        yield return new WaitForSeconds(0.2f); // Adjust the delay time as needed
-        PlayWeaponFireSound();
-        Shoot();
-        playerAnimator.SetTrigger("IsShooting");
+        // Delay before shooting
+        yield return new WaitForSeconds(0.2f);
+
+        if (ammoManager.currentAmmo > 0)
+        {
+            // Instantiate the bullet
+            StartCoroutine(InstantiateBulletWithDelay());
+
+            // Update the ammo count after firing
+            ammoManager.UpdateAmmoOnFire();
+
+            playerAnimator.SetTrigger("IsShooting");
+        }
+        else
+        {
+            ammoManager.Reload();
+        }
     }
 
     void PlayWeaponFireSound()
@@ -105,7 +150,7 @@ public class GunFires : MonoBehaviour
 
     IEnumerator InstantiateBulletWithDelay()
     {
-        yield return new WaitForSeconds(0.1f); // Adjust the delay time as needed
+        yield return new WaitForSeconds(0.1f);
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 
         if (bullet != null)
@@ -121,6 +166,7 @@ public class GunFires : MonoBehaviour
                 Debug.LogError("Rigidbody not found on the bullet");
             }
 
+            // Optionally destroy the bullet after some time
             StartCoroutine(DestroyBulletDelayed(bullet, 2.0f));
         }
         else
@@ -145,12 +191,12 @@ public class GunFires : MonoBehaviour
     {
         while (Input.GetButton("Fire1") && IsAutomaticWeapon())
         {
-            PlayWeaponFireSound(); 
+            PlayWeaponFireSound();
             Shoot();
             playerAnimator.SetTrigger("IsShooting");
             yield return null;
         }
-        StopWeaponFireSound(); 
+        StopWeaponFireSound();
     }
 
     void StopWeaponFireSound()

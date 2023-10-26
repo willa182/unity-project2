@@ -28,6 +28,9 @@ public class EnemyHealthManager : MonoBehaviour
     private EnemyMelee randomwalk;
     private bool screamTriggerActivated = false;
 
+    public GameObject bloodSplashPrefab; // The blood splash particle system prefab
+    private bool isBloodSplashActive = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -78,6 +81,13 @@ public class EnemyHealthManager : MonoBehaviour
         {
             Destroy(gameObject);
             healthBar.gameObject.SetActive(false);
+
+            if (isBloodSplashActive)
+            {
+                // Disable the blood splash effect
+                bloodSplashPrefab.SetActive(false);
+                isBloodSplashActive = false;
+            }
         }
         else
         {
@@ -104,14 +114,15 @@ public class EnemyHealthManager : MonoBehaviour
 
     public void HurtEnemy(int damageAmount)
     {
-        int randomChance = random.Next(100);
+        // Generate a random chance every time the enemy is damaged
+        int randomChance = Random.Range(0, 100);
 
         // Check for IsStumbling and set the flag.
         if (randomChance < 25)
         {
             animator.SetTrigger("IsTakingHit");
 
-            if (random.Next(100) < 10)
+            if (Random.Range(0, 100) < 10)
             {
                 animator.SetTrigger("IsStumbling");
                 animator.SetBool("IsWalking", false);
@@ -126,6 +137,28 @@ public class EnemyHealthManager : MonoBehaviour
             currentHealth -= damageAmount;
             flashCounter = flashLength;
             rend.material.SetColor("_Color", Color.black);
+
+            // Generate a random chance for the blood splash
+            int bloodSplashChance = Random.Range(0, 100);
+
+            // If the chance is less than 50 (50% chance), play the blood splash
+            if (bloodSplashChance < 50)
+            {
+                // Instantiate the blood splash prefab at the enemy's position
+                GameObject bloodSplash = Instantiate(bloodSplashPrefab, transform.position, Quaternion.identity);
+                bloodSplash.SetActive(true);
+            }
+        }
+    }
+
+    public void TakeExplosionDamage(int damageAmount)
+    {
+        currentHealth -= damageAmount;
+        healthBar.gameObject.SetActive(true);
+        healthBar.maxValue = health;
+        if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
         }
     }
 

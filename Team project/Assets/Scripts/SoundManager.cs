@@ -16,6 +16,8 @@ public class SoundManager : MonoBehaviour
     public AudioSource exploAudioSource;
     public AudioSource flashLightAudioSource;
     public AudioSource outOfBreath;
+    public AudioSource grenadeExplo;
+    public AudioSource soundTriggerTest;//
 
     void Awake()
     {
@@ -88,5 +90,13 @@ public class SoundManager : MonoBehaviour
     public void StopOutOfBreathSound()
     {
         outOfBreath.Stop();
+    }
+    public void PlayGrenadeExplo()
+    {
+        grenadeExplo.Play();
+    }
+    public void PlaySoundTriggerTest()
+    {
+        soundTriggerTest.Play();
     }
 }

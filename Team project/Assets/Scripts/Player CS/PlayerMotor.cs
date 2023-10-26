@@ -46,6 +46,12 @@ public class PlayerMotor : MonoBehaviour
     private bool IsHoldingRifle = false;
     private bool IsHoldingShotgun = false;
 
+    public GameObject grenadePrefab;
+    public Transform grenadeSpawnPoint; 
+    public float throwForce = 10f;
+    public float grenadeThrowDelay = 1.0f;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -119,6 +125,7 @@ public class PlayerMotor : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
         {
             animator.SetTrigger("IsThrowing");
+            Invoke("ThrowGrenade", grenadeThrowDelay);
         }
 
         if (IsWalkingOrRunningForward && Input.GetKeyDown(KeyCode.C) && IsGrounded)
@@ -342,6 +349,24 @@ public class PlayerMotor : MonoBehaviour
         {
             animator.SetBool("Melee", false);
             animator.SetBool("MeleeAlternative", false);
+        }
+    }
+
+    void ThrowGrenade()
+    {
+        if (grenadePrefab != null && grenadeSpawnPoint != null)
+        {
+            GameObject grenade = Instantiate(grenadePrefab, grenadeSpawnPoint.position, grenadeSpawnPoint.rotation);
+
+            Rigidbody grenadeRigidbody = grenade.GetComponent<Rigidbody>();
+            if (grenadeRigidbody != null)
+            {
+                // Calculate the forward direction based on the player's rotation
+                Vector3 throwDirection = transform.forward;
+
+                // Apply force to the grenade to control its trajectory
+                grenadeRigidbody.AddForce(throwDirection * throwForce, ForceMode.Impulse);
+            }
         }
     }
 }
