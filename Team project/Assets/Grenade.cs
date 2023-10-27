@@ -38,7 +38,6 @@ public class Grenade : MonoBehaviour
 
         foreach (Collider hit in colliders)
         {
-            // Check if the collider has an EnemyHealthManager component
             EnemyHealthManager enemyHealth = hit.GetComponent<EnemyHealthManager>();
 
             if (enemyHealth != null)
@@ -51,6 +50,18 @@ public class Grenade : MonoBehaviour
                 // Apply explosion damage to the enemy
                 enemyHealth.TakeExplosionDamage(damageAmount);
 
+            }
+            PlayerHealthManager playerHealth = hit.GetComponent<PlayerHealthManager>();
+
+            if (playerHealth != null)
+            {
+                // Calculate the damage based on the distance from the explosion center
+                float distance = Vector3.Distance(transform.position, hit.transform.position);
+                float damagePercent = Mathf.Clamp01(1 - distance / explosionRadius);
+                int damageAmount = (int)(damage * damagePercent);
+
+                // Apply explosion damage to the player
+                playerHealth.HurtPlayer(damageAmount);
             }
         }
 

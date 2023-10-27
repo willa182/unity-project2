@@ -28,8 +28,6 @@ public class PlayerMotor : MonoBehaviour
 
     Animator animator;
     GunFires gunFires;
-    public Animator defaultAnimator;  // Reference to the default Animator Controller (no two-handed weapon).
-    public Animator twoHandedAnimator; // Reference to the Animator Controller for two-handed weapon state.
 
     private bool Craft; // For walking
     private bool Move;  // For running
@@ -41,6 +39,7 @@ public class PlayerMotor : MonoBehaviour
 
     private PlayerHealthManager healthManager;
     private bool IsHoldingTwoHandedWeapon = false;
+    private bool IsTwoHandedWeaponAnimationActive = false;
 
     private bool IsHoldingRifle = false;
     private bool IsHoldingShotgun = false;
@@ -88,23 +87,6 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
-    void SwitchToDefaultAnimator()
-    {
-        defaultAnimator.enabled = true; // Enable the default animator.
-        twoHandedAnimator.enabled = false;
-        defaultAnimator.SetLayerWeight(0, 1);
-        twoHandedAnimator.SetLayerWeight(0, 0);
-    }
-
-    // Switch to the Animator Controller for two-handed weapon state.
-    void SwitchToTwoHandedAnimator()
-    {
-        defaultAnimator.enabled = false; // Disable the default animator.
-        twoHandedAnimator.enabled = true;
-        defaultAnimator.SetLayerWeight(0, 0);
-        twoHandedAnimator.SetLayerWeight(0, 1);
-    }
-
 
     // Update is called once per frame
     void Update()
@@ -117,13 +99,13 @@ public class PlayerMotor : MonoBehaviour
 
         if (IsHoldingRifle || IsHoldingShotgun)
         {
-            // The player is holding a Rifle or Shotgun, so switch to the two-handed animator.
-            SwitchToTwoHandedAnimator();
+            // The player is holding a Rifle or Shotgun, so set the "TwoHandedWeapon" parameter.
+            animator.SetBool("TwoHandedWeapon", true);
         }
         else
         {
-            // The player is not holding a Rifle or Shotgun, so use the default animator.
-            SwitchToDefaultAnimator();
+            // The player is not holding a Rifle or Shotgun, so set the "TwoHandedWeapon" parameter to false.
+            animator.SetBool("TwoHandedWeapon", false);
         }
 
 
@@ -135,7 +117,14 @@ public class PlayerMotor : MonoBehaviour
 
         if (IsWalkingOrRunningForward && Input.GetKeyDown(KeyCode.C) && IsGrounded)
         {
-            animator.SetTrigger("IsDiving");
+            if (IsHoldingTwoHandedWeapon)
+            {
+                animator.SetTrigger("IsDiving2");
+            }
+            else
+            {
+                animator.SetTrigger("IsDiving");
+            }
         }
 
         // Check if the player is walking or running forward
@@ -185,15 +174,31 @@ public class PlayerMotor : MonoBehaviour
             animator.SetBool("IsWalking", false);
             if (IsIdle && Input.GetButton("Fire2"))
             {
-                gunFires.SetAimingState(true);
-                animator.SetBool("IsAiming", true);
+                if (IsHoldingTwoHandedWeapon)
+                {
+                    animator.SetBool("IsAiming2", true);
+                    gunFires.SetAimingState(true);
+                }
+                else
+                {
+                    animator.SetBool("IsAiming", true);
+                    gunFires.SetAimingState(true);
+                }
 
                 Controller.enabled = false;
             }
             else
             {
-                gunFires.SetAimingState(false);
-                animator.SetBool("IsAiming", false);
+                if (IsHoldingTwoHandedWeapon)
+                {
+                    animator.SetBool("IsAiming2", false);
+                    gunFires.SetAimingState(false);
+                }
+                else
+                {
+                    animator.SetBool("IsAiming", false);
+                    gunFires.SetAimingState(false);
+                }
 
                 Controller.enabled = true;
             }
@@ -314,11 +319,15 @@ public class PlayerMotor : MonoBehaviour
     {
         if (IsGrounded)
         {
-            if (IsIdle || Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D) && !StrafeLeft && !StrafeRight)
+            if (IsHoldingTwoHandedWeapon)
             {
-                playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+                animator.SetTrigger("IsJumping2");
+            }
+            else
+            {
                 animator.SetTrigger("IsJumping");
             }
+            playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
         }
     }
 

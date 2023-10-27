@@ -30,18 +30,18 @@ public class EnemyHealthManager : MonoBehaviour
 
     public GameObject bloodSplashPrefab; // The blood splash particle system prefab
     private bool isBloodSplashActive = false;
+    private bool isDead = false; // Flag to track if the enemy is dead
 
     // Start is called before the first frame update
     void Start()
     {
         currentHealth = health;
-        rend = GetComponent<Renderer>();
+        rend = GetComponent <Renderer>();
         storedColor = rend.material.GetColor("_Color");
 
         navMeshAgent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
+        animator = GetComponent <Animator>();
         healthBar.gameObject.SetActive(false);
-
 
         sliderRectTransform = healthBar.GetComponent<RectTransform>();
         player = GameObject.FindWithTag("Player").transform;
@@ -49,15 +49,12 @@ public class EnemyHealthManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bullet"))
+        if (!isDead && other.CompareTag("Bullet"))
         {
             int damageAmount = 1;
             HurtEnemy(damageAmount);
 
-
             healthBar.gameObject.SetActive(true);
-
-
             healthBar.maxValue = health;
 
             Destroy(other.gameObject);
@@ -76,11 +73,12 @@ public class EnemyHealthManager : MonoBehaviour
             }
         }
 
-
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead)
         {
-            Destroy(gameObject);
+            isDead = true; // Mark the enemy as dead
+            animator.SetTrigger("Death");
             healthBar.gameObject.SetActive(false);
+            navMeshAgent.isStopped = true;
 
             if (isBloodSplashActive)
             {
@@ -153,15 +151,21 @@ public class EnemyHealthManager : MonoBehaviour
 
     public void TakeExplosionDamage(int damageAmount)
     {
-        currentHealth -= damageAmount;
-        healthBar.gameObject.SetActive(true);
-        healthBar.maxValue = health;
-        if (currentHealth <= 0)
+        if (!isDead)
         {
-            Destroy(gameObject);
+            currentHealth -= damageAmount;
+            healthBar.gameObject.SetActive(true);
+            healthBar.maxValue = health;
+
+            if (currentHealth <= 0)
+            {
+                isDead = true;
+                animator.SetTrigger("Death");
+                healthBar.gameObject.SetActive(false);
+                navMeshAgent.isStopped = true;
+            }
         }
     }
-
 
     public bool IsFlashing()
     {
