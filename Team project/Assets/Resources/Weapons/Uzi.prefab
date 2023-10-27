@@ -508,6 +508,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3646244792506795954}
   - component: {fileID: 1036447988168962916}
+  - component: {fileID: 8759069045349571781}
   m_Layer: 7
   m_Name: Uzi
   m_TagString: Rifle
@@ -558,6 +559,27 @@ MonoBehaviour:
     position: {x: 0.00109, y: 0.001930048, z: -0.000220018}
     rotation: {x: 0.3597561, y: 0.74037683, z: -0.2753771, w: 0.4965734}
     scale: {x: 0.1, y: 0.1, z: 0.1}
+--- !u!65 &8759069045349571781
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607055011741502516}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 2.4917274, z: 3.9352543}
+  m_Center: {x: -0.0000028773447, y: -0.3017213, z: -1.001634}
 --- !u!1 &7391378470698932689
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,7 +31,6 @@ public class PlayerMotor : MonoBehaviour
     public Animator defaultAnimator;  // Reference to the default Animator Controller (no two-handed weapon).
     public Animator twoHandedAnimator; // Reference to the Animator Controller for two-handed weapon state.
 
-
     private bool Craft; // For walking
     private bool Move;  // For running
     private bool StrafeLeft;
@@ -80,23 +79,31 @@ public class PlayerMotor : MonoBehaviour
             if (collider.CompareTag("Rifle"))
             {
                 IsHoldingRifle = true;
+                IsHoldingTwoHandedWeapon = true;
             }
             else if (collider.CompareTag("Shotgun"))
             {
                 IsHoldingShotgun = true;
+                IsHoldingTwoHandedWeapon = true;
             }
         }
     }
 
     void SwitchToDefaultAnimator()
     {
-        GetComponent<Animator>().runtimeAnimatorController = defaultAnimator.runtimeAnimatorController;
+        defaultAnimator.enabled = true; // Enable the default animator.
+        twoHandedAnimator.enabled = false;
+        defaultAnimator.SetLayerWeight(0, 1);
+        twoHandedAnimator.SetLayerWeight(0, 0);
     }
 
     // Switch to the Animator Controller for two-handed weapon state.
     void SwitchToTwoHandedAnimator()
     {
-        GetComponent<Animator>().runtimeAnimatorController = twoHandedAnimator.runtimeAnimatorController;
+        defaultAnimator.enabled = false; // Disable the default animator.
+        twoHandedAnimator.enabled = true;
+        defaultAnimator.SetLayerWeight(0, 0);
+        twoHandedAnimator.SetLayerWeight(0, 1);
     }
 
 
@@ -109,15 +116,14 @@ public class PlayerMotor : MonoBehaviour
 
         CheckEquippedWeapons();
 
-        // Enable or disable Animator Controllers based on equipped weapons.
         if (IsHoldingRifle || IsHoldingShotgun)
         {
-            // Switch to the Animator Controller for two-handed weapon state.
+            // The player is holding a Rifle or Shotgun, so switch to the two-handed animator.
             SwitchToTwoHandedAnimator();
         }
         else
         {
-            // Switch to the default Animator Controller.
+            // The player is not holding a Rifle or Shotgun, so use the default animator.
             SwitchToDefaultAnimator();
         }
 
@@ -193,7 +199,6 @@ public class PlayerMotor : MonoBehaviour
                 Controller.enabled = true;
             }
         }
-
         bool allowMovement = !animator.GetBool("IsAiming");
 
         if (allowMovement)
