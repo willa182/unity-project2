@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponName: Pistol
-  sprite: {fileID: 21300000, guid: d7c82189f43fd9a49a35ad556937b500, type: 3}
+  sprite: {fileID: 21300000, guid: 79d5c991a86d34345991a3c2a9398b08, type: 3}
   transformSettings:
     position: {x: 0.0131, y: 0.0712, z: 0.0249}
     rotation: {x: 0.44055203, y: -0.51295555, z: -0.48925418, w: -0.5508365}

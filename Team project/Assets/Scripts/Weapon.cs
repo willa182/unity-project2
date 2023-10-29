@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+
 public class Weapon : MonoBehaviour
 {
     public string weaponName;
@@ -10,6 +11,7 @@ public class Weapon : MonoBehaviour
     public bool IsPickedUp { get; set; } = false;
 
     public PlayerInventory.WeaponTransformSettings transformSettings;
+
 
     void Update()
     {

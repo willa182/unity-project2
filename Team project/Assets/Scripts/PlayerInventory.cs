@@ -37,12 +37,25 @@ public class PlayerInventory : MonoBehaviour
     private bool isPickupAnimationPlaying = false;
     private bool IsIdle;
 
+    public Text grenadeCountText; // Reference to your UI Text for displaying grenade count.
+    public int grenadeCount = 0;
+    public PlayerMotor playerMotor;
+
     void Start()
     {
         InitializeQuickslots();
         Controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        UpdateGrenadeCountText();
+        PlayerMotor.OnGrenadeThrown += UpdateGrenadeCountText;
     }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from the event to prevent memory leaks
+        PlayerMotor.OnGrenadeThrown -= UpdateGrenadeCountText;
+    }
+
 
     void Update()
     {
@@ -86,6 +99,31 @@ public class PlayerInventory : MonoBehaviour
         return false;
     }
 
+    private void PickupGrenade()
+    {
+        if (grenadeCount < 3) // Limit the player to a maximum of 3 grenades.
+        {
+            grenadeCount++;
+            UpdateGrenadeCountText(); // Update the UI text with the new grenade count.
+
+            // Call a method in the PlayerMotor script to update availableGrenades
+            if (playerMotor != null)
+            {
+                playerMotor.UpdateAvailableGrenades(grenadeCount);
+            }
+        }
+        else
+        {
+            Debug.Log("Grenade inventory is full!");
+        }
+    }
+
+    public void DecrementGrenadeCount()
+    {
+        grenadeCount--;
+        UpdateGrenadeCountText();
+    }
+
     void TryEquipWeapon(int slotIndex)
     {
         if (slotIndex > 0 && slotIndex <= weaponsInventory.Count)
@@ -113,14 +151,19 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    public void TryPickupWeaponLogic()
+    void TryPickupWeaponLogic()
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, 2f);
         bool canPickup = false;
 
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject.layer == LayerMask.NameToLayer("WeaponPickup"))
+            if (collider.CompareTag("Grenade")) // Use the tag to identify grenades.
+            {
+                canPickup = true;
+                break;
+            }
+            else
             {
                 canPickup = true;
                 break;
@@ -146,16 +189,32 @@ public class PlayerInventory : MonoBehaviour
 
             if (weaponPrefab != null && weaponObject != null)
             {
-                  // Start the pickup animation
-                  animator.SetBool("PickingUp", true);
-                  isPickupAnimationPlaying = true;
+                // Start the pickup animation
+                animator.SetBool("PickingUp", true);
+                isPickupAnimationPlaying = true;
 
-                  // Perform the pickup logic by calling your existing method with both parameters
-                  PickupWeapon(weaponPrefab, weaponObject);
+                if (weaponPrefab.CompareTag("Grenade")) // Check the tag to identify grenades.
+                {
+                    PickupGrenade();
+                }
+                else
+                {
+                    // Handle other weapon pickups as before.
+                    PickupWeapon(weaponPrefab, weaponObject);
+                }
 
-                  // Start a coroutine to check if the weapon object is destroyed
-                  StartCoroutine(CheckWeaponDestroyed(weaponObject));
+                // Start a coroutine to check if the weapon object is destroyed
+                StartCoroutine(CheckWeaponDestroyed(weaponObject));
             }
+        }
+    }
+
+    public void UpdateGrenadeCountText()
+    {
+        if (grenadeCountText != null)
+        {
+            grenadeCountText.text = "Grenades: " + grenadeCount;
+            Debug.Log("UpdateGrenadeCountText: " + grenadeCountText.text);
         }
     }
 
@@ -230,7 +289,7 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-   private void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
+    private void PickupWeapon(Weapon weaponPrefab, GameObject weaponObject)
     {
         canPickup = false;
 
@@ -247,20 +306,23 @@ public class PlayerInventory : MonoBehaviour
 
         if (!weaponAlreadyInInventory)
         {
-            int emptySlotIndex = weaponsInventory.FindIndex(w => !w.IsPickedUp);
+            if (!weapon.CompareTag("Grenade")) // Skip adding grenades to quickslots.
+            {
+                int emptySlotIndex = weaponsInventory.FindIndex(w => !w.IsPickedUp);
 
-            if (emptySlotIndex != -1)
-            {
-                weaponsInventory[emptySlotIndex] = weapon;
-            }
-            else if (weaponsInventory.Count < 3)
-            {
-                weaponsInventory.Add(weapon);
-            }
-            else
-            {
-                Debug.Log("Quickslots are full!");
-                return;
+                if (emptySlotIndex != -1)
+                {
+                    weaponsInventory[emptySlotIndex] = weapon;
+                }
+                else if (weaponsInventory.Count < 3)
+                {
+                    weaponsInventory.Add(weapon);
+                }
+                else
+                {
+                    Debug.Log("Quickslots are full!");
+                    return;
+                }
             }
 
             UpdateQuickslotUI();
@@ -332,6 +394,7 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+
     void InitializeQuickslots()
     {
         foreach (Transform child in quickslotUI)
@@ -347,3 +410,4 @@ public class PlayerInventory : MonoBehaviour
         UpdateQuickslotUI();
     }
 }
+

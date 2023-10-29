@@ -49,6 +49,12 @@ public class PlayerMotor : MonoBehaviour
     public float throwForce = 10f;
     public float grenadeThrowDelay = 1.0f;
 
+    public int availableGrenades = 0;
+    public PlayerInventory playerInventory;
+
+    public delegate void GrenadeThrown();
+    public static event GrenadeThrown OnGrenadeThrown;
+
 
     // Start is called before the first frame update
     void Start()
@@ -57,6 +63,7 @@ public class PlayerMotor : MonoBehaviour
         Controller = GetComponent<CharacterController>();
         healthManager = GetComponent<PlayerHealthManager>();
         soundManager = SoundManager.instance;
+        playerInventory = GetComponent<PlayerInventory>();
 
         gunFires = GetComponent<GunFires>();
         if (gunFires == null)
@@ -87,6 +94,11 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    public void UpdateAvailableGrenades(int newGrenadeCount)
+    {
+        availableGrenades = newGrenadeCount;
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -111,8 +123,21 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.G))
         {
-            animator.SetTrigger("IsThrowing");
-            Invoke("ThrowGrenade", grenadeThrowDelay);
+            // Check if the player has grenades before throwing.
+            if (availableGrenades > 0)
+            {
+                animator.SetTrigger("IsThrowing");
+                Invoke("ThrowGrenade", grenadeThrowDelay);
+
+                // Decrement the available grenades count.
+       //         availableGrenades--;
+                playerInventory.UpdateGrenadeCountText();
+       //         OnGrenadeThrown?.Invoke();
+            }
+            else
+            {
+                // Play a sound or provide feedback that the player is out of grenades.
+            }
         }
 
         if (IsWalkingOrRunningForward && Input.GetKeyDown(KeyCode.C) && IsGrounded)
@@ -379,6 +404,12 @@ public class PlayerMotor : MonoBehaviour
 
                 // Apply force to the grenade to control its trajectory
                 grenadeRigidbody.AddForce(throwDirection * throwForce, ForceMode.Impulse);
+
+                // Decrement the available grenades count.
+                availableGrenades--;
+
+                // Call the DecrementGrenadeCount method in PlayerInventory to update grenade count.
+                playerInventory.DecrementGrenadeCount();
             }
         }
     }

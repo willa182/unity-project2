@@ -21,6 +21,7 @@ TagManager:
   - Rifle
   - HealthPrefab1
   - HealthPrefab2
+  - Grenade
   layers:
   - Default
   - TransparentFX

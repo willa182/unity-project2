@@ -401,9 +401,10 @@ GameObject:
   - component: {fileID: 2983268085642010430}
   - component: {fileID: 3972172411435504162}
   - component: {fileID: -240981843288670308}
-  m_Layer: 0
+  - component: {fileID: 531744793345376352}
+  m_Layer: 7
   m_Name: Grenade
-  m_TagString: Untagged
+  m_TagString: Grenade
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -416,7 +417,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8429434613831285761}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.77485955, z: 0, w: 0.6321335}
+  m_LocalRotation: {x: 0, y: 0.7748595, z: 0, w: 0.63213354}
   m_LocalPosition: {x: -53.8, y: -0.597, z: -1.98}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
@@ -538,6 +539,24 @@ MonoBehaviour:
   explosionForce: 25
   damage: 100
   explosionEffectPrefab: {fileID: 6900212239853263095, guid: a4f8589adade12945b354e1e1b82480f, type: 3}
+--- !u!114 &531744793345376352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8429434613831285761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4915034044170fe4c859780a64da0d6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponName: Grenade
+  sprite: {fileID: 0}
+  transformSettings:
+    position: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    scale: {x: 0, y: 0, z: 0}
 --- !u!1 &8786101898099291881
 GameObject:
   m_ObjectHideFlags: 0
