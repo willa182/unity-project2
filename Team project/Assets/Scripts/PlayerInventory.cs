@@ -41,12 +41,15 @@ public class PlayerInventory : MonoBehaviour
     public int grenadeCount = 0;
     public PlayerMotor playerMotor;
 
+    public GunFires gunFires;
+
     void Start()
     {
         InitializeQuickslots();
         Controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         UpdateGrenadeCountText();
+        gunFires = GetComponent<GunFires>();
         PlayerMotor.OnGrenadeThrown += UpdateGrenadeCountText;
     }
 
@@ -135,6 +138,11 @@ public class PlayerInventory : MonoBehaviour
                 UnequipWeapon();
                 InstantiateWeaponInHand(weaponsInventory[selectedWeaponIndex - 1]);
                 UpdateQuickslotUI();
+
+                if (gunFires != null)
+                {
+                    gunFires.UpdateAmmoText();
+                }
 
                 // Stop the pickup animation
                 animator.SetBool("PickingUp", false);

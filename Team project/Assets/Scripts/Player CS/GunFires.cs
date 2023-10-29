@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
+using UnityEngine.UI;
 
 public class GunFires : MonoBehaviour
 {
@@ -18,12 +20,16 @@ public class GunFires : MonoBehaviour
     private SoundManager soundManager;
     private bool isFiring = false;
 
+    public AmmoManager ammoManager;
+    public Text ammoCountText;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         soundManager = SoundManager.instance;
+        ammoManager = GameObject.Find("AmmoManager").GetComponent<AmmoManager>();
 
         playerLook = GetComponent<PlayerLook>();
         if (playerLook == null)
@@ -40,32 +46,85 @@ public class GunFires : MonoBehaviour
         {
             if (isAiming && Input.GetMouseButton(1))
             {
-                if (Input.GetButtonDown("Fire1") && IsAutomaticWeapon())
+                if (Input.GetButtonDown("Fire1"))
                 {
-                    Debug.Log("Firing automatic weapon.");
-                    StartCoroutine(AutomaticFire());
+                    string currentWeapon = GetCurrentWeaponType();
+                    UpdateAmmoText();
+
+                    if (currentWeapon == "Pistol")
+                    {
+                        UpdateAmmoText();
+                    }
+                    else if (currentWeapon == "Rifle")
+                    {
+                        UpdateAmmoText();
+                    }
+                    else if (currentWeapon == "Shotgun")
+                    {
+                        UpdateAmmoText();
+                    }
+
+                    if (currentWeapon == "Rifle" && IsAutomaticWeapon() && ammoManager.CanShoot(currentWeapon))
+                    {
+                        Debug.Log("Firing automatic weapon.");
+                        StartCoroutine(AutomaticFire(currentWeapon));
+                    }
+                    else if (ammoManager.CanShoot(currentWeapon))
+                    {
+                        Debug.Log("Firing single shot with " + currentWeapon);
+                        StartCoroutine(ShootWithDelay(currentWeapon));
+                        PlayWeaponFireSound();
+                        ammoManager.Shoot(currentWeapon);
+                    }
                 }
-                else if (Input.GetButtonDown("Fire1"))
+                else if (IsMoving() && Input.GetButtonDown("Fire1"))
                 {
-                    Debug.Log("Firing single shot.");  
-                    
-                    StartCoroutine(ShootWithDelay());
+                    Debug.Log("Firing while moving.");
+                    StartCoroutine(ShootWithDelay(GetCurrentWeaponType()));
+                    StartCoroutine(AutomaticFire(GetCurrentWeaponType()));
                     PlayWeaponFireSound();
                 }
-            }
-            else if (IsMoving() && Input.GetButtonDown("Fire1"))
-            {
-                Debug.Log("Firing while moving."); 
-                
-                StartCoroutine(ShootWithDelay());
-                StartCoroutine(AutomaticFire());
-                PlayWeaponFireSound();   
             }
         }
     }
 
+   public string GetCurrentWeaponType()
+    {
+        foreach (Transform weaponTransform in playerHand)
+        {
+            if (weaponTransform.CompareTag("Pistol"))
+            {
+                return "Pistol";
+            }
+            else if (weaponTransform.CompareTag("Rifle"))
+            {
+                return "Rifle";
+            }
+            else if (weaponTransform.CompareTag("Shotgun"))
+            {
+                return "Shotgun";
+            }
+        }
+        return ""; // Return an empty string if no valid weapon is found
+    }
 
-    IEnumerator ShootWithDelay()
+    public void UpdateAmmoText()
+    {
+        if (ammoCountText != null && ammoManager != null)
+        {
+            // Retrieve the current equipped weapon type
+            string currentWeaponType = GetCurrentWeaponType();
+
+            // Get the corresponding ammo count from the AmmoManager
+            int ammoCount = ammoManager.GetAmmoCount(currentWeaponType);
+
+            // Update the UI Text with the ammo count
+            ammoCountText.text = "Ammo: " + ammoCount;
+        }
+    }
+
+
+    IEnumerator ShootWithDelay(string currentWeapon)
     {
         // Delay before shooting
         yield return new WaitForSeconds(0.2f);
@@ -100,6 +159,8 @@ public class GunFires : MonoBehaviour
     void Shoot()
     {
         StartCoroutine(InstantiateBulletWithDelay());
+          
+        UpdateAmmoText();                
     }
 
     bool IsValidWeaponInHand()
@@ -154,13 +215,14 @@ public class GunFires : MonoBehaviour
         return false;
     }
 
-    IEnumerator AutomaticFire()
+    IEnumerator AutomaticFire(string currentWeapon)
     {
-        while (Input.GetButton("Fire1") && IsAutomaticWeapon())
+        while (Input.GetButton("Fire1") && IsAutomaticWeapon() && ammoManager.CanShoot("Rifle"))
         {
             PlayWeaponFireSound();
             Shoot();
             playerAnimator.SetTrigger("IsShooting");
+            ammoManager.Shoot("Rifle");
             yield return null;
         }
         StopWeaponFireSound();
@@ -176,6 +238,7 @@ public class GunFires : MonoBehaviour
             }
         }
     }
+
 
     bool IsMoving()
     {
