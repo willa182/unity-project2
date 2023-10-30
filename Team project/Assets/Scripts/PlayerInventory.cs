@@ -42,6 +42,8 @@ public class PlayerInventory : MonoBehaviour
     public PlayerMotor playerMotor;
 
     public GunFires gunFires;
+    public Text ammoCountText;
+    public AmmoManager ammoManager;
 
     void Start()
     {
@@ -79,6 +81,46 @@ public class PlayerInventory : MonoBehaviour
         if (equippedSlotIndex != -1)
         {
             InstantiateWeaponInHand(weaponsInventory[equippedSlotIndex]);
+        }
+
+        UpdateAmmoTextBasedOnEquippedWeapon();
+    }
+
+    void UpdateAmmoTextBasedOnEquippedWeapon()
+    {
+        // Check if the player is holding a weapon in the right hand
+        foreach (Transform weaponTransform in handTransform)
+        {
+            if (weaponTransform.CompareTag("Pistol"))
+            {
+                UpdateAmmoText("Pistol");
+                return;
+            }
+            else if (weaponTransform.CompareTag("Rifle"))
+            {
+                UpdateAmmoText("Rifle");
+                return;
+            }
+            else if (weaponTransform.CompareTag("Shotgun"))
+            {
+                UpdateAmmoText("Shotgun");
+                return;
+            }
+        }
+
+        // If no weapon is found in the right hand, clear the ammo text
+        UpdateAmmoText("");
+    }
+
+    void UpdateAmmoText(string weaponType)
+    {
+        if (ammoCountText != null && ammoManager != null)
+        {
+            // Get the corresponding ammo count from the AmmoManager
+            int ammoCount = ammoManager.GetAmmoCount(weaponType);
+
+            // Update the UI Text with the ammo count
+            ammoCountText.text = "Ammo: " + ammoCount;
         }
     }
 
