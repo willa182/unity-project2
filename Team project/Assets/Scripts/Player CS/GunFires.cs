@@ -22,6 +22,7 @@ public class GunFires : MonoBehaviour
 
     public AmmoManager ammoManager;
     public Text ammoCountText;
+    Animator animator;
 
     void Start()
     {
@@ -30,6 +31,8 @@ public class GunFires : MonoBehaviour
 
         soundManager = SoundManager.instance;
         ammoManager = GameObject.Find("AmmoManager").GetComponent<AmmoManager>();
+
+        animator = gameObject.GetComponent<Animator>();
 
         playerLook = GetComponent<PlayerLook>();
         if (playerLook == null)
@@ -51,19 +54,6 @@ public class GunFires : MonoBehaviour
                     string currentWeapon = GetCurrentWeaponType();
                     UpdateAmmoText();
 
-                    if (currentWeapon == "Pistol")
-                    {
-                        UpdateAmmoText();
-                    }
-                    else if (currentWeapon == "Rifle")
-                    {
-                        UpdateAmmoText();
-                    }
-                    else if (currentWeapon == "Shotgun")
-                    {
-                        UpdateAmmoText();
-                    }
-
                     if (currentWeapon == "Rifle" && IsAutomaticWeapon() && ammoManager.CanShoot(currentWeapon))
                     {
                         Debug.Log("Firing automatic weapon.");
@@ -72,9 +62,15 @@ public class GunFires : MonoBehaviour
                     else if (ammoManager.CanShoot(currentWeapon))
                     {
                         Debug.Log("Firing single shot with " + currentWeapon);
-                        StartCoroutine(ShootWithDelay(currentWeapon));
-                        PlayWeaponFireSound();
-                        ammoManager.Shoot(currentWeapon);
+
+                        // Deduct ammo only from the main ammo
+                        if (ammoManager.GetAmmoCount(currentWeapon) > 0)
+                        {
+                            StartCoroutine(ShootWithDelay(currentWeapon));
+                            PlayWeaponFireSound();
+                            ammoManager.Shoot(currentWeapon);
+                            UpdateAmmoText();
+                        }
                     }
                 }
                 else if (IsMoving() && Input.GetButtonDown("Fire1"))
@@ -85,10 +81,15 @@ public class GunFires : MonoBehaviour
                     PlayWeaponFireSound();
                 }
             }
+            if (Input.GetKeyDown(KeyCode.R) && IsValidWeaponInHand())
+            {
+                string currentWeapon = GetCurrentWeaponType();
+                ReloadWeapon(currentWeapon);
+            }
         }
     }
 
-   public string GetCurrentWeaponType()
+    public string GetCurrentWeaponType()
     {
         foreach (Transform weaponTransform in playerHand)
         {
@@ -156,11 +157,60 @@ public class GunFires : MonoBehaviour
         }
     }
 
-    void Shoot()
+    void Shoot(string currentWeapon)
     {
-        StartCoroutine(InstantiateBulletWithDelay());
-          
-        UpdateAmmoText();                
+        // Deduct ammo only from the main ammo
+        if (ammoManager.GetAmmoCount(currentWeapon) > 0)
+        {
+            StartCoroutine(InstantiateBulletWithDelay());
+            playerAnimator.SetTrigger("IsShooting");
+            UpdateAmmoText();
+            PlayWeaponFireSound();
+            ammoManager.Shoot(currentWeapon);
+        }
+    }
+
+    void ReloadWeapon(string currentWeapon)
+    {
+        if (ammoManager.CanReload(currentWeapon))
+        {
+            int currentAmmoCount = ammoManager.GetAmmoCount(currentWeapon);
+            int availableAmmo = ammoManager.GetAmmoReserve(currentWeapon);
+            int ammoNeeded = GetMaxAmmoCount(currentWeapon) - currentAmmoCount; // Use the maximum ammo count for the specific weapon type
+
+            if (availableAmmo >= ammoNeeded)
+            {
+                // Reload the weapon only if main ammo is not full
+                if (currentAmmoCount < GetMaxAmmoCount(currentWeapon))
+                {
+                    // Set the "IsReloading" trigger in the animator
+                    animator.SetTrigger("IsReloading");
+
+                    // Reload the weapon
+                    ammoManager.Reload(currentWeapon, ammoNeeded);
+                    UpdateAmmoText();
+                }
+            }
+            else
+            {
+                Debug.Log("Not enough reserve ammo to reload.");
+            }
+        }
+    }
+
+    int GetMaxAmmoCount(string weaponType)
+    {
+        switch (weaponType)
+        {
+            case "Pistol":
+                return 15;
+            case "Shotgun":
+                return 8;
+            case "Rifle":
+                return 30;
+            default:
+                return 0;
+        }
     }
 
     bool IsValidWeaponInHand()
@@ -220,7 +270,7 @@ public class GunFires : MonoBehaviour
         while (Input.GetButton("Fire1") && IsAutomaticWeapon() && ammoManager.CanShoot("Rifle"))
         {
             PlayWeaponFireSound();
-            Shoot();
+            Shoot(currentWeapon);////
             playerAnimator.SetTrigger("IsShooting");
             ammoManager.Shoot("Rifle");
             yield return null;

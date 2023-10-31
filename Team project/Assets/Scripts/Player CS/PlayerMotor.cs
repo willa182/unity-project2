@@ -55,6 +55,7 @@ public class PlayerMotor : MonoBehaviour
     public delegate void GrenadeThrown();
     public static event GrenadeThrown OnGrenadeThrown;
 
+    private AmmoManager ammoManager;
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +70,12 @@ public class PlayerMotor : MonoBehaviour
         if (gunFires == null)
         {
             Debug.LogError("GunFires script not found on the same GameObject.");
+        }
+
+        ammoManager = FindObjectOfType<AmmoManager>();
+        if (ammoManager == null)
+        {
+            Debug.LogError("AmmoManager not found in the scene.");
         }
     }
 
@@ -310,6 +317,7 @@ public class PlayerMotor : MonoBehaviour
 
         UpdateStaminaUI();
     }
+
 
     void TryPickupWeapon()
     {
