@@ -56,6 +56,7 @@ public class PlayerMotor : MonoBehaviour
     public static event GrenadeThrown OnGrenadeThrown;
 
     private AmmoManager ammoManager;
+    public EnemyHealthManager enemyHealthManager;
 
     // Start is called before the first frame update
     void Start()
@@ -262,6 +263,7 @@ public class PlayerMotor : MonoBehaviour
                 lastPressTime = Time.time; // Update the last press time
                 animator.SetBool("Melee", true);
                 Invoke("ResetMeleeFlag", 1f); Invoke("ResetMeleeFlag", 1f);
+                DealMeleeDamage();
             }
 
             if (Input.GetKey(KeyCode.A) && IsGrounded)
@@ -316,6 +318,24 @@ public class PlayerMotor : MonoBehaviour
         }
 
         UpdateStaminaUI();
+    }
+    
+   public void DealMeleeDamage()
+    {
+        if (enemyHealthManager != null) // Check if an enemy is in range
+        {
+            StartCoroutine(DealMeleeDamageWithDelay(50, 0.7f)); // Change the delay duration (1.0f) as needed
+        }
+    }
+
+    IEnumerator DealMeleeDamageWithDelay(int damageAmount, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        enemyHealthManager.HurtEnemy(damageAmount);
+        enemyHealthManager.healthBar.gameObject.SetActive(true);
+
+        enemyHealthManager.healthBar.maxValue = enemyHealthManager.health;
     }
 
 

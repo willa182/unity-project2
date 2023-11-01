@@ -167,6 +167,7 @@ public class EnemyHealthManager : MonoBehaviour
         }
     }
 
+
     public bool IsFlashing()
     {
         return flashCounter > 0;
