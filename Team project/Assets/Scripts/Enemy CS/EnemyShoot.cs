@@ -30,9 +30,17 @@ public class EnemyShoot : MonoBehaviour
 
         if (playerHealth != null && playerHealth.currentHealth > 0 && canShoot && Vector3.Distance(transform.position, player.position) <= shootingRange)
         {
-            Shoot();
+            if (Random.value < 0.35f) // 25% chance to miss
+            {
+                ShootMiss();
+            }
+            else
+            {
+                Shoot();
+            }
         }
     }
+
 
     void RotateTowardsPlayer()
     {
@@ -51,9 +59,25 @@ public class EnemyShoot : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         rb.velocity = bullet.transform.forward * bulletForce;
+
         Destroy(bullet, 2f);
         StartCoroutine(EnableShootingCooldown());
     }
+
+    void ShootMiss()
+    {
+        canShoot = false;
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        Rigidbody rb = bullet.GetComponent <Rigidbody>();
+
+        // Calculate a random direction for the miss (left or right)
+        Vector3 missDirection = Quaternion.Euler(0, Random.Range(-25f, 25f), 0) * transform.forward;
+        rb.velocity = missDirection * bulletForce;
+
+        Destroy(bullet, 2f);
+        StartCoroutine(EnableShootingCooldown());
+    }
+
 
     IEnumerator EnableShootingCooldown()
     {
