@@ -30,7 +30,7 @@ public class EnemyMelee3 : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = walkSpeed;
         animator = GetComponent<Animator>();
-        animator.enabled = false; // Disable the animator at the start
+        agent.enabled = false;
         StartCoroutine(RandomWalk());
     }
 
@@ -45,12 +45,6 @@ public class EnemyMelee3 : MonoBehaviour
             return;
         }
 
-        // Enable the animator if it's not already enabled
-        if (!isAnimatorEnabled)
-        {
-            animator.enabled = true;
-            isAnimatorEnabled = true;
-        }
 
         if (playerInSightRange && !playerInAttackRange)
         {
@@ -81,6 +75,7 @@ public class EnemyMelee3 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isAnimatorEnabled = true;
+            agent.enabled = true;
         }
     }
 
