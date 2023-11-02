@@ -95,7 +95,7 @@ public class EnemyHealthManager : MonoBehaviour
             if (currentHealth <= health * 0.25f && !screamTriggerActivated)
             {
                 // Set the Scream Trigger active
-                animator.SetTrigger("ScreamTrigger");
+                animator.SetTrigger("IsScreaming");
                 screamTriggerActivated = true;
             }
 
