@@ -24,6 +24,9 @@ public class EnemyMelee3 : MonoBehaviour
     public bool isRandomWalkEnabled = true;
     private bool isAnimatorEnabled = false;
 
+    private float timePlayerEnteredCollider; // Track the time when the player entered the collider
+    private bool isStandingUp = false;
+
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
@@ -43,6 +46,17 @@ public class EnemyMelee3 : MonoBehaviour
         {
             // Enemy is on cooldown, don't move or attack
             return;
+        }
+
+        if (isAnimatorEnabled)
+        {
+            if (!isStandingUp && Time.time - timePlayerEnteredCollider >= 2f)
+            {
+                // Set the "IsStandingUp" animation to true 2 seconds after the player entered
+                animator.SetTrigger("IsStandingUp");
+                isStandingUp = true;
+                StartCoroutine(EnableNavMeshAgentAfterDelay(4.0f));
+            }
         }
 
 
@@ -75,7 +89,7 @@ public class EnemyMelee3 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isAnimatorEnabled = true;
-            agent.enabled = true;
+            timePlayerEnteredCollider = Time.time;
         }
     }
 
@@ -85,6 +99,12 @@ public class EnemyMelee3 : MonoBehaviour
         {
             isAnimatorEnabled = false;
         }
+    }
+
+    IEnumerator EnableNavMeshAgentAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        agent.enabled = true;
     }
 
     IEnumerator RandomWalk()
@@ -115,11 +135,30 @@ public class EnemyMelee3 : MonoBehaviour
         isAttacking = true;
         animator.SetBool("IsRunning", false);
         animator.SetBool("IsWalking", false);
-        animator.SetTrigger("Melee"); // Use a trigger to start the attack animation.
+
+        // Determine the attack type based on random chances
+        float randomChance = Random.Range(0f, 1f);
+
+        if (randomChance <= 0.4f)
+        {
+            // 40% chance to trigger the "IsKicking" animation
+            animator.SetTrigger("IsKicking");
+        }
+        else if (randomChance <= 0.2f)
+        {
+            // 25% chance to trigger the "IsHeadbutting" animation
+            animator.SetTrigger("IsHeadbutting");
+        }
+        else
+        {
+            // Default attack animation or any other logic you have
+            animator.SetTrigger("Melee");
+        }
+
         agent.speed = 0f; // Stop moving
         FaceTarget(); // Make the enemy face the player
 
-        // Start cooldown as soon as the Melee animation is triggered
+        // Start cooldown as soon as the attack animation is triggered
         cooldownActive = true;
         yield return new WaitForSeconds(attackCooldown);
 
