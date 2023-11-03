@@ -314,7 +314,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Zombie standing up
+  m_Name: Idle
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -336,7 +336,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -203655887218126122, guid: 6c1dac583ac15bd4b9d92caa1a6e3341, type: 3}
+  m_Motion: {fileID: -203655887218126122, guid: 61e66da71064e804792b135932267b6b, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
