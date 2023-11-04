@@ -80,6 +80,20 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Trigger Enter: " + other.gameObject.name); // Log to see if the trigger event is happening
+
+        if (other.CompareTag("PistolAmmo") || other.CompareTag("RifleAmmo") || other.CompareTag("ShotgunAmmo"))
+        {
+            AmmoManager ammoManager = AmmoManager.instance; // Use the static reference
+            if (ammoManager != null)
+            {
+                ammoManager.PickUpAmmo(other);
+            }
+        }
+    }
+
     void CheckEquippedWeapons()
     {
         IsHoldingRifle = false;
@@ -164,7 +178,7 @@ public class PlayerMotor : MonoBehaviour
         IsWalkingOrRunningForward = Input.GetKey(KeyCode.W) || (Input.GetKey(KeyCode.W) && isSprinting);
 
 
-        if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting)
+        if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting && stamina > 0)
         {
             animator.SetBool("IsRunning", true);
             DrainStamina();
@@ -180,7 +194,7 @@ public class PlayerMotor : MonoBehaviour
             stamina += staminaRegenRate * Time.deltaTime;
         }
 
-        if (Input.GetKey(KeyCode.S) && IsGrounded && isSprinting)
+        if (Input.GetKey(KeyCode.S) && IsGrounded && isSprinting && stamina > 0)
         {
             animator.SetBool("IsRunningBackwards", true);
             DrainStamina();
@@ -370,18 +384,33 @@ public class PlayerMotor : MonoBehaviour
 
     public void Jump()
     {
-        if (IsGrounded)
+        if (IsGrounded && !IsMovingBackward() && !IsStrafing())
         {
-            if (IsHoldingTwoHandedWeapon)
+            if (IsIdle || IsWalkingOrRunningForward)
             {
-                animator.SetTrigger("IsJumping2");
+                if (IsHoldingTwoHandedWeapon)
+                {
+                    animator.SetTrigger("IsJumping2");
+                }
+                else
+                {
+                    animator.SetTrigger("IsJumping");
+                }
+                playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
             }
-            else
-            {
-                animator.SetTrigger("IsJumping");
-            }
-            playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
         }
+    }
+
+    private bool IsMovingBackward()
+    {
+        // Check if the 'S' key is being held down
+        return Input.GetKey(KeyCode.S);
+    }
+
+    private bool IsStrafing()
+    {
+        // Check if the 'A' or 'D' keys are being held down
+        return Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
     }
 
     private void DrainStamina()

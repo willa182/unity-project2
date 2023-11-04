@@ -12,10 +12,13 @@ public class AmmoManager : MonoBehaviour
     public int shotgunAmmoReserve = 80;
     public int rifleAmmoReserve = 150;
 
-    private void Start()
+    public static AmmoManager instance;
+
+    private void Awake()
     {
-        // You can set initial ammo counts here or load them from a save file.
+        instance = this;
     }
+
 
     public int GetAmmoCount(string weaponType)
     {
@@ -133,5 +136,29 @@ public class AmmoManager : MonoBehaviour
             default:
                 return false;
         }
+    }
+
+    public void PickUpAmmo(Collider ammoCollider)
+    {
+        string ammoTag = ammoCollider.tag;
+
+        // Check the ammo tag and add the appropriate amount of ammo to the reserve
+        switch (ammoTag)
+        {
+            case "PistolAmmo":
+                pistolAmmoReserve += Random.Range(10, 26); // Add random ammo between 10 and 25
+                break;
+            case "RifleAmmo":
+                rifleAmmoReserve += Random.Range(10, 26);
+                break;
+            case "ShotgunAmmo":
+                shotgunAmmoReserve += Random.Range(10, 26);
+                break;
+            default:
+                break;
+        }
+
+        // Destroy the picked-up ammo
+        Destroy(ammoCollider.gameObject);
     }
 }

@@ -23,6 +23,12 @@ TagManager:
   - HealthPrefab2
   - Grenade
   - Vehicle
+  - Red
+  - Green
+  - Blue
+  - PistolAmmo
+  - RifleAmmo
+  - ShotgunAmmo
   layers:
   - Default
   - TransparentFX

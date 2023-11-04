@@ -24,6 +24,15 @@ public class GunFires : MonoBehaviour
     public Text ammoCountText;
     Animator animator;
 
+    public float pistolFireRate = 0.5f; // Adjust these values to your desired fire rates
+    public float shotgunFireRate = 1.0f;
+    public float rifleFireRate = 0.1f;
+    private float lastPistolShotTime;
+    private float lastShotgunShotTime;
+    private float lastRifleShotTime;
+
+    private bool canFire = false;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -47,7 +56,9 @@ public class GunFires : MonoBehaviour
     {
         if (IsValidWeaponInHand())
         {
-            if (isAiming && Input.GetMouseButton(1))
+            bool isAimingNow = Input.GetMouseButton(1);
+
+            if (IsMoving() || isAimingNow)
             {
                 if (Input.GetButtonDown("Fire1"))
                 {
@@ -56,10 +67,14 @@ public class GunFires : MonoBehaviour
 
                     if (currentWeapon == "Rifle" && IsAutomaticWeapon() && ammoManager.CanShoot(currentWeapon))
                     {
-                        Debug.Log("Firing automatic weapon.");
-                        StartCoroutine(AutomaticFire(currentWeapon));
+                        if (Time.time > GetLastShotTime(currentWeapon) + GetFireRate(currentWeapon))
+                        {
+                            Debug.Log("Firing automatic weapon.");
+                            StartCoroutine(AutomaticFire(currentWeapon));
+                            UpdateLastShotTime(currentWeapon);
+                        }
                     }
-                    else if (ammoManager.CanShoot(currentWeapon))
+                    else if (CanFire(currentWeapon))
                     {
                         Debug.Log("Firing single shot with " + currentWeapon);
 
@@ -70,22 +85,21 @@ public class GunFires : MonoBehaviour
                             PlayWeaponFireSound();
                             ammoManager.Shoot(currentWeapon);
                             UpdateAmmoText();
+                            UpdateLastShotTime(currentWeapon);
                         }
                     }
                 }
-                else if (IsMoving() && Input.GetButtonDown("Fire1"))
-                {
-                    Debug.Log("Firing while moving.");
-                    StartCoroutine(ShootWithDelay(GetCurrentWeaponType()));
-                    StartCoroutine(AutomaticFire(GetCurrentWeaponType()));
-                    PlayWeaponFireSound();
-                }
             }
+
             if (Input.GetKeyDown(KeyCode.R) && IsValidWeaponInHand())
             {
                 string currentWeapon = GetCurrentWeaponType();
                 ReloadWeapon(currentWeapon);
             }
+
+            canFire = !IsMoving() || !Input.GetMouseButton(1);
+
+            SetAimingState(isAimingNow);
         }
     }
 
@@ -133,7 +147,65 @@ public class GunFires : MonoBehaviour
         // Instantiate the bullet
         StartCoroutine(InstantiateBulletWithDelay());
 
+
         playerAnimator.SetTrigger("IsShooting");
+    }
+
+    private bool CanFire(string currentWeapon)
+    {
+        float lastShotTime = GetLastShotTime(currentWeapon);
+        float fireRate = GetFireRate(currentWeapon);
+        return Time.time - lastShotTime >= fireRate;
+    }
+
+    private void UpdateLastShotTime(string currentWeapon)
+    {
+        if (currentWeapon == "Pistol")
+        {
+            lastPistolShotTime = Time.time;
+        }
+        else if (currentWeapon == "Shotgun")
+        {
+            lastShotgunShotTime = Time.time;
+        }
+        else if (currentWeapon == "Rifle")
+        {
+            lastRifleShotTime = Time.time;
+        }
+    }
+
+    private float GetLastShotTime(string currentWeapon)
+    {
+        if (currentWeapon == "Pistol")
+        {
+            return lastPistolShotTime;
+        }
+        else if (currentWeapon == "Shotgun")
+        {
+            return lastShotgunShotTime;
+        }
+        else if (currentWeapon == "Rifle")
+        {
+            return lastRifleShotTime;
+        }
+        return 0.0f;
+    }
+
+    private float GetFireRate(string currentWeapon)
+    {
+        if (currentWeapon == "Pistol")
+        {
+            return pistolFireRate;
+        }
+        else if (currentWeapon == "Shotgun")
+        {
+            return shotgunFireRate;
+        }
+        else if (currentWeapon == "Rifle")
+        {
+            return rifleFireRate;
+        }
+        return 0.0f;
     }
 
     void PlayWeaponFireSound()
@@ -267,10 +339,10 @@ public class GunFires : MonoBehaviour
 
     IEnumerator AutomaticFire(string currentWeapon)
     {
-        while (Input.GetButton("Fire1") && IsAutomaticWeapon() && ammoManager.CanShoot("Rifle"))
+        while (IsAutomaticWeapon() && currentWeapon == "Rifle" && Input.GetButton("Fire1") && ammoManager.CanShoot("Rifle"))
         {
             PlayWeaponFireSound();
-            Shoot(currentWeapon);////
+            Shoot(currentWeapon);
             playerAnimator.SetTrigger("IsShooting");
             ammoManager.Shoot("Rifle");
             yield return null;

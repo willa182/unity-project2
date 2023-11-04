@@ -32,19 +32,23 @@ public class EnemyHealthManager : MonoBehaviour
     private bool isBloodSplashActive = false;
     private bool isDead = false; // Flag to track if the enemy is dead
 
+    private AmmoDrop ammoDrop;
+
     // Start is called before the first frame update
     void Start()
     {
         currentHealth = health;
-        rend = GetComponent <Renderer>();
+        rend = GetComponent<Renderer>();
         storedColor = rend.material.GetColor("_Color");
 
         navMeshAgent = GetComponent<NavMeshAgent>();
-        animator = GetComponent <Animator>();
+        animator = GetComponent<Animator>();
         healthBar.gameObject.SetActive(false);
 
         sliderRectTransform = healthBar.GetComponent<RectTransform>();
         player = GameObject.FindWithTag("Player").transform;
+
+        ammoDrop = GetComponent<AmmoDrop>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -77,6 +81,7 @@ public class EnemyHealthManager : MonoBehaviour
         {
             isDead = true; // Mark the enemy as dead
             animator.SetTrigger("Death");
+            ammoDrop.EnemyKilled();
             healthBar.gameObject.SetActive(false);
             navMeshAgent.isStopped = true;
 
