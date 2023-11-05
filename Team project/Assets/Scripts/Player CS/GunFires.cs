@@ -36,9 +36,18 @@ public class GunFires : MonoBehaviour
     private float lastRifleShotTime;
 
     private bool canFire = false;
+    public GameObject pistolParticles; // Reference to the Pistol Particle System GameObject
+    public GameObject rifleParticles; // Reference to the Rifle Particle System GameObject
+
 
     void Start()
     {
+        if (pistolParticles != null)
+            pistolParticles.SetActive(false);
+
+        if (rifleParticles != null)
+            rifleParticles.SetActive(false);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -76,6 +85,16 @@ public class GunFires : MonoBehaviour
                             Debug.Log("Firing automatic weapon.");
                             StartCoroutine(AutomaticFire(currentWeapon));
                             UpdateLastShotTime(currentWeapon);
+
+                            if (rifleParticles != null)
+                            {
+                                rifleParticles.SetActive(true);
+                                ParticleSystem rifleParticleSystem = rifleParticles.GetComponent<ParticleSystem>();
+                                if (rifleParticleSystem != null)
+                                {
+                                    rifleParticleSystem.Play();
+                                }
+                            }
                         }
                     }
                     else if (CanFire(currentWeapon))
@@ -90,6 +109,16 @@ public class GunFires : MonoBehaviour
                             ammoManager.Shoot(currentWeapon);
                             UpdateAmmoText();
                             UpdateLastShotTime(currentWeapon);
+
+                            if (currentWeapon == "Pistol" && pistolParticles != null)
+                            {
+                                pistolParticles.SetActive(true);
+                                ParticleSystem pistolParticleSystem = pistolParticles.GetComponent<ParticleSystem>();
+                                if (pistolParticleSystem != null)
+                                {
+                                    pistolParticleSystem.Play();
+                                }
+                            }
                         }
                     }
                 }
@@ -357,7 +386,6 @@ public class GunFires : MonoBehaviour
                 Debug.LogError("Rigidbody not found on the bullet");
             }
 
-            // Optionally destroy the bullet after some time
             StartCoroutine(DestroyBulletDelayed(bullet, 2.0f));
         }
         else

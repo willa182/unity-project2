@@ -1814,7 +1814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 248355b1d1e02134f93418a2e543b0cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 0
+  health: 100
   currentHealth: 0
   flashLength: 0
   healthBar: {fileID: 0}

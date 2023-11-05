@@ -216,7 +216,13 @@ public class PlayerInventory : MonoBehaviour
             else
             {
                 canPickup = true;
-                break;
+                Weapon weaponComponent = collider.GetComponent<Weapon>();
+
+                if (weaponComponent != null)
+                {
+                    canPickup = true;
+                    break;
+                }
             }
         }
 
