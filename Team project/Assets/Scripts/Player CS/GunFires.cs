@@ -15,7 +15,11 @@ public class GunFires : MonoBehaviour
     private bool isIdle = true;
     private bool isAiming = false;
     private PlayerLook playerLook;
-    public GameObject bulletPrefab;
+
+    public GameObject pistolBulletPrefab;
+    public GameObject rifleBulletPrefab;
+    public GameObject shotgunBulletPrefab;
+    private GameObject currentBulletPrefab;
 
     private SoundManager soundManager;
     private bool isFiring = false;
@@ -26,7 +30,7 @@ public class GunFires : MonoBehaviour
 
     public float pistolFireRate = 0.5f; // Adjust these values to your desired fire rates
     public float shotgunFireRate = 1.0f;
-    public float rifleFireRate = 0.1f;
+    public float rifleFireRate = 1.0f;
     private float lastPistolShotTime;
     private float lastShotgunShotTime;
     private float lastRifleShotTime;
@@ -144,9 +148,26 @@ public class GunFires : MonoBehaviour
         // Delay before shooting
         yield return new WaitForSeconds(0.2f);
 
-        // Instantiate the bullet
-        StartCoroutine(InstantiateBulletWithDelay());
+        switch (currentWeapon)
+        {
+            case "Pistol":
+                currentBulletPrefab = pistolBulletPrefab;
+                break;
+            case "Rifle":
+                currentBulletPrefab = rifleBulletPrefab;
+                break;
+            case "Shotgun":
+                currentBulletPrefab = shotgunBulletPrefab;
+                break;
+            default:
+                // Handle the case where the current weapon is unknown or not handled
+                break;
+        }
 
+        if (currentBulletPrefab != null)
+        {
+            StartCoroutine(InstantiateBulletWithDelay());
+        }
 
         playerAnimator.SetTrigger("IsShooting");
     }
@@ -220,6 +241,7 @@ public class GunFires : MonoBehaviour
             else if (weaponTransform.CompareTag("Rifle"))
             {
                 soundManager.PlayRifleFireSound();
+                Debug.Log("Playing Rifle firing sound"); // Add this line for debugging
             }
             else if (weaponTransform.CompareTag("Shotgun"))
             {
@@ -261,12 +283,31 @@ public class GunFires : MonoBehaviour
                     // Reload the weapon
                     ammoManager.Reload(currentWeapon, ammoNeeded);
                     UpdateAmmoText();
+
+                    PlayReloadSound(currentWeapon);
                 }
             }
             else
             {
                 Debug.Log("Not enough reserve ammo to reload.");
             }
+        }
+    }
+
+    void PlayReloadSound(string currentWeapon)
+    {
+        switch (currentWeapon)
+        {
+            case "Pistol":
+                soundManager.PlayPistolReload(); // Call the appropriate sound function for reloading
+                break;
+            case "Rifle":
+                soundManager.PlayRifleReload(); // Call the appropriate sound function for reloading
+                break;
+            case "Shotgun":
+                soundManager.PlayShotgunReload(); // Call the appropriate sound function for reloading
+                break;
+                // Add more cases for other weapon types if needed
         }
     }
 
@@ -301,11 +342,11 @@ public class GunFires : MonoBehaviour
     IEnumerator InstantiateBulletWithDelay()
     {
         yield return new WaitForSeconds(0.1f);
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        GameObject bullet = Instantiate(currentBulletPrefab, firePoint.position, firePoint.rotation);
 
         if (bullet != null)
         {
-            Rigidbody rb = bullet.GetComponent<Rigidbody>();
+            Rigidbody rb = bullet.GetComponent <Rigidbody>();
 
             if (rb != null)
             {
@@ -345,7 +386,9 @@ public class GunFires : MonoBehaviour
             Shoot(currentWeapon);
             playerAnimator.SetTrigger("IsShooting");
             ammoManager.Shoot("Rifle");
-            yield return null;
+
+            // Introduce a delay between shots
+            yield return new WaitForSeconds(rifleFireRate);
         }
         StopWeaponFireSound();
     }

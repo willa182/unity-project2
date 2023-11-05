@@ -81,7 +81,7 @@ public class EnemyHealthManager : MonoBehaviour
         {
             isDead = true; // Mark the enemy as dead
             animator.SetTrigger("Death");
-            ammoDrop.EnemyKilled();
+            //ammoDrop.EnemyKilled();
             healthBar.gameObject.SetActive(false);
             navMeshAgent.isStopped = true;
 

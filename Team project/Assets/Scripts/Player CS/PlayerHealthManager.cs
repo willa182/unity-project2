@@ -128,12 +128,17 @@ public class PlayerHealthManager : MonoBehaviour
 
     public void HurtPlayer(int damageAmount)
     {
-        if (!isDead) 
+        if (!isDead)
         {
             currentHealth -= damageAmount;
             flashCounter = flashLength;
             flashCanvas.enabled = true;
-            animator.SetTrigger("IsTakingHit");
+
+            // Check for a 50% chance to trigger IsTakingHit
+            if (Random.value < 0.5f)
+            {
+                animator.SetTrigger("IsTakingHit");
+            }
 
             UpdateHealthBar();
 

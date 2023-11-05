@@ -508,7 +508,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3646244792506795954}
   - component: {fileID: 1036447988168962916}
-  - component: {fileID: 8759069045349571781}
+  - component: {fileID: 6867486287002485399}
+  - component: {fileID: 4532662100438779996}
   m_Layer: 7
   m_Name: Uzi
   m_TagString: Rifle
@@ -526,7 +527,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.3597562, y: -0.7403767, z: 0.27537695, w: -0.49657366}
   m_LocalPosition: {x: 0.00109, y: 0.001930048, z: -0.000220018}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8051561439329549671}
@@ -554,12 +555,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponName: Uzi
-  sprite: {fileID: 21300000, guid: 0fe0513829e31924a9507204c621ff9f, type: 3}
+  sprite: {fileID: 21300000, guid: eef18d33c7eb7c64cb92f40f54a334b0, type: 3}
   transformSettings:
     position: {x: 0.00109, y: 0.001930048, z: -0.000220018}
     rotation: {x: 0.3597561, y: 0.74037683, z: -0.2753771, w: 0.4965734}
     scale: {x: 0.1, y: 0.1, z: 0.1}
---- !u!65 &8759069045349571781
+--- !u!65 &6867486287002485399
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -578,8 +579,26 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2.4917274, z: 3.9352543}
-  m_Center: {x: -0.0000028773447, y: -0.3017213, z: -1.001634}
+  m_Size: {x: 8, y: 3, z: 8}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4532662100438779996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6607055011741502516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 3
+  outlineColor: {r: 0.028630257, g: 1, b: 0, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &7391378470698932689
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,6 +17,9 @@ public class SoundManager : MonoBehaviour
     public AudioSource flashLightAudioSource;
     public AudioSource outOfBreath;
     public AudioSource grenadeExplo;
+    public AudioSource pistolReload;
+    public AudioSource rifleReload;
+    public AudioSource shotgunReload;
     public AudioSource soundTriggerTest;//
 
     void Awake()
@@ -95,6 +98,23 @@ public class SoundManager : MonoBehaviour
     {
         grenadeExplo.Play();
     }
+
+    public void PlayPistolReload()
+    {
+        pistolReload.Play();
+    }
+
+    public void PlayRifleReload()
+    {
+        rifleReload.Play();
+    }
+
+    public void PlayShotgunReload()
+    {
+        shotgunReload.Play();
+    }
+
+
     public void PlaySoundTriggerTest()
     {
         soundTriggerTest.Play();

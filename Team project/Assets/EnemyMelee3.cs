@@ -50,12 +50,12 @@ public class EnemyMelee3 : MonoBehaviour
 
         if (isAnimatorEnabled)
         {
-            if (!isStandingUp && Time.time - timePlayerEnteredCollider >= 2f)
+            if (!isStandingUp && Time.time - timePlayerEnteredCollider >= 0.5f)
             {
                 // Set the "IsStandingUp" animation to true 2 seconds after the player entered
                 animator.SetTrigger("IsStandingUp");
                 isStandingUp = true;
-                StartCoroutine(EnableNavMeshAgentAfterDelay(4.0f));
+                StartCoroutine(EnableNavMeshAgentAfterDelay(3.7f));
             }
         }
 

@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 965122724455233182}
   - component: {fileID: 8058339254466377530}
   - component: {fileID: 1283146077990963767}
+  - component: {fileID: 8023753282828993781}
+  - component: {fileID: 6049700902150788724}
   m_Layer: 7
   m_Name: Pistol
   m_TagString: Pistol
@@ -29,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.44055182, y: -0.51295537, z: -0.48925388, w: -0.5508371}
   m_LocalPosition: {x: 0.0131, y: 0.0712, z: 0.0249}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 6, y: 6, z: 6}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2793672267455694576}
@@ -101,11 +103,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponName: Pistol
-  sprite: {fileID: 21300000, guid: 79d5c991a86d34345991a3c2a9398b08, type: 3}
+  sprite: {fileID: 21300000, guid: f743ae65363a58b4bb63d471b4978b1a, type: 3}
   transformSettings:
     position: {x: 0.0131, y: 0.0712, z: 0.0249}
     rotation: {x: 0.44055203, y: -0.51295555, z: -0.48925418, w: -0.5508365}
     scale: {x: 1, y: 1, z: 1}
+--- !u!65 &8023753282828993781
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3481397233780424008}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0.000000006519258, y: 0.038608972, z: 0.07738223}
+--- !u!114 &6049700902150788724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3481397233780424008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 3
+  outlineColor: {r: 0.028630257, g: 1, b: 0, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &4514435768398991545
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,7 +340,7 @@ Transform:
   m_GameObject: {fileID: 6581425161908300484}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000059604645, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.000000012111664, y: 0.09405109, z: 0.030023064}
+  m_LocalPosition: {x: 0.002, y: 0.09405109, z: 0.030023064}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

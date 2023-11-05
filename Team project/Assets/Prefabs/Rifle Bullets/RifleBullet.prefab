@@ -45,7 +45,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1509389101319220351}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 44c4e7f330952134eae5e89e9caf1fa5, type: 3}
   m_Controller: {fileID: 9100000, guid: b6b052137f4ae6f45b82160f59ce9f2d, type: 2}
   m_CullingMode: 1
@@ -70,7 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d30724db3beda34f991ee1220e56bd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 20
+  damage: 19
 --- !u!65 &8961541590873300755
 BoxCollider:
   m_ObjectHideFlags: 0
