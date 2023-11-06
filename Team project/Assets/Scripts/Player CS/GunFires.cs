@@ -123,8 +123,14 @@ public class GunFires : MonoBehaviour
                     }
                 }
             }
-
             if (Input.GetKeyDown(KeyCode.R) && IsValidWeaponInHand())
+            {
+                string currentWeapon = GetCurrentWeaponType();
+                ReloadWeapon(currentWeapon);
+            }
+
+            // Check if the ammo count is 0 and automatically reload
+            if (ammoManager.GetAmmoCount(GetCurrentWeaponType()) == 0)
             {
                 string currentWeapon = GetCurrentWeaponType();
                 ReloadWeapon(currentWeapon);
@@ -308,6 +314,7 @@ public class GunFires : MonoBehaviour
                 {
                     // Set the "IsReloading" trigger in the animator
                     animator.SetTrigger("IsReloading");
+
 
                     // Reload the weapon
                     ammoManager.Reload(currentWeapon, ammoNeeded);
