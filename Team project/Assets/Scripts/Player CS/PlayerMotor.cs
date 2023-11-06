@@ -181,6 +181,7 @@ public class PlayerMotor : MonoBehaviour
         if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting && stamina > 0)
         {
             animator.SetBool("IsRunning", true);
+            currentSpeed = speed * sprintSpeedMultiplier;
             DrainStamina();
         }
         else
@@ -192,6 +193,11 @@ public class PlayerMotor : MonoBehaviour
         if (!isSprinting && stamina < 100f)
         {
             stamina += staminaRegenRate * Time.deltaTime;
+        }
+
+        if (stamina <= 0)
+        {
+            currentSpeed = speed;
         }
 
         if (Input.GetKey(KeyCode.S) && IsGrounded && isSprinting && stamina > 0)

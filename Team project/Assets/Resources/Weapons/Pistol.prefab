@@ -13,8 +13,6 @@ GameObject:
   - component: {fileID: 8058339254466377530}
   - component: {fileID: 1283146077990963767}
   - component: {fileID: 8023753282828993781}
-  - component: {fileID: 6049700902150788724}
-  - component: {fileID: 1090566107084031128}
   m_Layer: 7
   m_Name: Pistol
   m_TagString: Pistol
@@ -131,40 +129,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0.000000006519258, y: 0.038608972, z: 0.07738223}
---- !u!114 &6049700902150788724
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3481397233780424008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 3
-  outlineColor: {r: 0.028630257, g: 1, b: 0, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
---- !u!114 &1090566107084031128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3481397233780424008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53e8100c3fdf55b418a78c46945c671f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletCasingPrefab: {fileID: 1813149051434618, guid: 642e863bc9f9a4a49a4f4c6bba25fe49, type: 3}
-  casingSpawnPoint: {fileID: 0}
-  casingForce: 2
-  fireRate: 1
 --- !u!1 &4514435768398991545
 GameObject:
   m_ObjectHideFlags: 0

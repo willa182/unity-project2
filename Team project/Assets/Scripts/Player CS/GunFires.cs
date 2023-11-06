@@ -38,6 +38,7 @@ public class GunFires : MonoBehaviour
     private bool canFire = false;
     public GameObject pistolParticles; // Reference to the Pistol Particle System GameObject
     public GameObject rifleParticles; // Reference to the Rifle Particle System GameObject
+    public GameObject shotgunParticles;
 
 
     void Start()
@@ -47,6 +48,9 @@ public class GunFires : MonoBehaviour
 
         if (rifleParticles != null)
             rifleParticles.SetActive(false);
+
+        if (shotgunParticles != null)
+            shotgunParticles.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -117,6 +121,16 @@ public class GunFires : MonoBehaviour
                                 if (pistolParticleSystem != null)
                                 {
                                     pistolParticleSystem.Play();
+                                }
+                            }
+
+                            if (currentWeapon == "Shotgun" && shotgunParticles != null)
+                            {
+                                shotgunParticles.SetActive(true);
+                                ParticleSystem shotgunParticleSystem = shotgunParticles.GetComponent<ParticleSystem>();
+                                if (shotgunParticleSystem != null)
+                                {
+                                    shotgunParticleSystem.Play();
                                 }
                             }
                         }
