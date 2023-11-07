@@ -27,6 +27,9 @@ public class EnemyMelee3 : MonoBehaviour
     private float timePlayerEnteredCollider; // Track the time when the player entered the collider
     private bool isStandingUp = false;
 
+    SoundManager soundManager;
+    private bool isChasing = false;
+
     void Start()
     {
         player = GameObject.FindWithTag("Player").transform;
@@ -35,6 +38,8 @@ public class EnemyMelee3 : MonoBehaviour
         animator = GetComponent<Animator>();
         agent.enabled = false;
         StartCoroutine(RandomWalk());
+
+        soundManager = SoundManager.instance;
     }
 
     void Update()
@@ -67,6 +72,11 @@ public class EnemyMelee3 : MonoBehaviour
             animator.ResetTrigger("Melee"); // Reset the attack trigger.
             agent.speed = runSpeed;
             agent.SetDestination(player.position);
+
+            if (!isChasing)
+            {
+                soundManager.PlayRandomZombieChaseSound();
+            }
         }
         else if (playerInAttackRange)
         {

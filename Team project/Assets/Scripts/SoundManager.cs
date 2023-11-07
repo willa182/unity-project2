@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
@@ -20,7 +21,15 @@ public class SoundManager : MonoBehaviour
     public AudioSource pistolReload;
     public AudioSource rifleReload;
     public AudioSource shotgunReload;
-    public AudioSource soundTriggerTest;//
+    public AudioSource zombieMoan;
+    public AudioSource zombieGrunt;
+    public AudioSource zombieHiss;
+    public AudioSource zombieGrowl;
+    public AudioSource zombieDeath;
+    public AudioSource zombieChase;
+    public AudioSource zombieAggresive;
+    public AudioSource jetTriggerTest;//
+    public AudioSource distanceTriggerTest;//
 
     void Awake()
     {
@@ -34,9 +43,6 @@ public class SoundManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        // Set the background music
-        // (Assuming background music is set directly in the Unity Editor)
     }
 
     // Play pistol fire sound
@@ -115,8 +121,36 @@ public class SoundManager : MonoBehaviour
     }
 
 
+    public void PlayZombieDeath()
+    {
+        zombieDeath.Play();
+    }
+
+
+    public void PlayRandomZombieSound()
+    {
+        AudioSource[] zombieSounds = { zombieMoan, zombieGrunt, zombieHiss, zombieGrowl };
+
+        int randomIndex = Random.Range(0, zombieSounds.Length);
+        zombieSounds[randomIndex].Play();
+    }
+
+    public void PlayRandomZombieChaseSound()
+    {
+        AudioSource[] zombieSounds = { zombieAggresive, zombieChase };
+
+        int randomIndex = Random.Range(0, zombieSounds.Length);
+        zombieSounds[randomIndex].Play();
+    }
+
+
     public void PlaySoundTriggerTest()
     {
-        soundTriggerTest.Play();
+        jetTriggerTest.Play();
+    }
+
+    public void PlaySoundTriggerTest2()
+    {
+        distanceTriggerTest.Play();
     }
 }

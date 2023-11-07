@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class StaticCamera : MonoBehaviour
 {
-    public Transform target; // The player's Transform to follow
+    public Transform player; // The player's Transform to follow
 
     [Header("Initial Camera Position and Rotation")]
     public Vector3 initialPosition = new Vector3(0f, 2f, -5f); // Initial camera position
     public Vector3 initialRotation = new Vector3(15f, 0f, 0f);  // Initial camera rotation
 
-    public Vector3 offset;   // Offset from the player's position
+    public Vector3 offset;   // Offset from the target's position
+
+    private Transform currentVehicle; // The vehicle the player is currently driving
 
     void Start()
     {
@@ -19,15 +21,31 @@ public class StaticCamera : MonoBehaviour
 
     void Update()
     {
-        if (target == null)
+        if (currentVehicle != null)
         {
-            // Make sure you have assigned the target in the Inspector
-            Debug.LogWarning("Target is not assigned to the camera.");
-            return;
+            // Follow the current vehicle's position
+            Vector3 newPosition = currentVehicle.position + offset;
+            transform.position = newPosition;
         }
+        else if (player != null)
+        {
+            // Follow the player's position if no active vehicle is available
+            Vector3 newPosition = player.position + offset;
+            transform.position = newPosition;
+        }
+        else
+        {
+            Debug.LogWarning("Player is not assigned to the camera.");
+        }
+    }
 
-        // Follow the player's position
-        Vector3 newPosition = target.position + offset;
-        transform.position = newPosition;
+    public void SetCurrentVehicle(Transform vehicle)
+    {
+        currentVehicle = vehicle;
+    }
+
+    public void ClearCurrentVehicle()
+    {
+        currentVehicle = null;
     }
 }

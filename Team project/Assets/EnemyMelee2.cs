@@ -8,6 +8,9 @@ public class EnemyMelee2 : MonoBehaviour
     public float walkPointRange = 10f;
     public float sightRange = 5f;
     public float attackRange = 2f;
+    public float soundRange = 30f;
+    private float timeSinceLastSound = 0f;
+    private float soundInterval = 5f;
     public float walkSpeed = 2f;
     public float runSpeed = 6f;
     public float attackCooldown = 2f; // Cooldown time after an attack
@@ -17,11 +20,15 @@ public class EnemyMelee2 : MonoBehaviour
     private Vector3 walkPoint;
     private bool playerInSightRange;
     private bool playerInAttackRange;
+    private bool playerInSoundRange;
     private bool isAttacking = false;
     private bool cooldownActive = false;
 
     Animator animator;
     public bool isRandomWalkEnabled = true;
+
+    SoundManager soundManager;
+    private bool isChasing = false;
 
     void Start()
     {
@@ -30,12 +37,26 @@ public class EnemyMelee2 : MonoBehaviour
         agent.speed = walkSpeed;
         animator = GetComponent<Animator>();
         StartCoroutine(RandomWalk());
+
+        soundManager = SoundManager.instance;
     }
 
     void Update()
     {
         playerInSightRange = Vector3.Distance(transform.position, player.position) <= sightRange;
         playerInAttackRange = Vector3.Distance(transform.position, player.position) <= attackRange;
+        playerInSoundRange = Vector3.Distance(transform.position, player.position) <= soundRange;
+
+        if (playerInSoundRange && !isChasing)
+        {
+            Debug.Log("player in sound range");
+            timeSinceLastSound += Time.deltaTime;
+            if (timeSinceLastSound >= soundInterval)
+            {
+                soundManager.PlayRandomZombieSound();
+                timeSinceLastSound = 0f;
+            }
+        }
 
         if (cooldownActive)
         {
@@ -50,6 +71,11 @@ public class EnemyMelee2 : MonoBehaviour
             animator.ResetTrigger("Melee"); // Reset the attack trigger.
             agent.speed = runSpeed;
             agent.SetDestination(player.position);
+
+            if (!isChasing)
+            {
+                soundManager.PlayRandomZombieChaseSound();
+            }
         }
         else if (playerInAttackRange)
         {

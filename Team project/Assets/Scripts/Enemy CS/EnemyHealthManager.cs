@@ -33,6 +33,7 @@ public class EnemyHealthManager : MonoBehaviour
     private bool isDead = false; // Flag to track if the enemy is dead
 
     private AmmoDrop ammoDrop;
+    SoundManager soundManager;
 
     // Start is called before the first frame update
     void Start()
@@ -49,6 +50,7 @@ public class EnemyHealthManager : MonoBehaviour
         player = GameObject.FindWithTag("Player").transform;
 
         ammoDrop = GetComponent<AmmoDrop>();
+        soundManager = SoundManager.instance;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -81,7 +83,7 @@ public class EnemyHealthManager : MonoBehaviour
         {
             isDead = true; // Mark the enemy as dead
             animator.SetTrigger("Death");
-            //ammoDrop.EnemyKilled();
+            soundManager.PlayZombieDeath();
             healthBar.gameObject.SetActive(false);
             navMeshAgent.isStopped = true;
 
