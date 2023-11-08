@@ -7,6 +7,10 @@ public class AudioTrigger : MonoBehaviour
     private AudioSource audioSource;
     private bool isPlaying;
 
+    public float minDistance = 5.0f; // Minimum distance for maximum volume.
+    public float maxDistance = 10.0f; // Maximum distance at which sound is audible.
+    public float minVolume = 0.1f; // Minimum volume when player is at maxDistance.
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -17,28 +21,31 @@ public class AudioTrigger : MonoBehaviour
         audioSource.clip = audioClip;
         audioSource.playOnAwake = false;
         audioSource.loop = false;
+        audioSource.volume = 1.0f; // Start with volume at maximum (1.0).
     }
 
-    void OnTriggerEnter(Collider other)
+    void Update()
     {
-        if (other.CompareTag("Player"))
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
         {
-            float volume = 1 - (other.transform.position - transform.position).magnitude / 20;
-            volume = Mathf.Clamp01(volume);
-            audioSource.volume = volume;
-            if (!isPlaying)
+            float distance = Vector3.Distance(player.transform.position, transform.position);
+
+            if (distance <= maxDistance)
             {
-                StartCoroutine(PlayAudioOnLoop());
-            }
-        }
-    }
+                float targetVolume = Mathf.Lerp(minVolume, 1.0f, Mathf.InverseLerp(maxDistance, minDistance, distance));
+                audioSource.volume = targetVolume;
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            StopCoroutine(PlayAudioOnLoop());
-            audioSource.Stop();
+                if (!isPlaying)
+                {
+                    StartCoroutine(PlayAudioOnLoop());
+                }
+            }
+            else
+            {
+                audioSource.volume = 0.0f;
+                StopCoroutine(PlayAudioOnLoop());
+            }
         }
     }
 

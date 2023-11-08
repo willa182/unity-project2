@@ -54,6 +54,7 @@ public class PlayerMotor : MonoBehaviour
 
     public delegate void GrenadeThrown();
     public static event GrenadeThrown OnGrenadeThrown;
+    private EnemyHealthManager[] enemyHealthManagers;
 
     private AmmoManager ammoManager;
     public EnemyHealthManager enemyHealthManager;
@@ -67,6 +68,14 @@ public class PlayerMotor : MonoBehaviour
         soundManager = SoundManager.instance;
         playerInventory = GetComponent<PlayerInventory>();
 
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        enemyHealthManagers = new EnemyHealthManager[enemies.Length];
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            enemyHealthManagers[i] = enemies[i].GetComponent<EnemyHealthManager>();
+        }
+
         gunFires = GetComponent<GunFires>();
         if (gunFires == null)
         {
@@ -78,6 +87,27 @@ public class PlayerMotor : MonoBehaviour
         {
             Debug.LogError("AmmoManager not found in the scene.");
         }
+    }
+
+    public EnemyHealthManager GetNearestEnemyHealthManager(Vector3 playerPosition)
+    {
+        EnemyHealthManager nearestEnemyHealthManager = null;
+        float closestDistance = float.MaxValue;
+
+        for (int i = 0; i < enemyHealthManagers.Length; i++)
+        {
+            if (enemyHealthManagers[i] != null)
+            {
+                float distance = Vector3.Distance(playerPosition, enemyHealthManagers[i].transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    nearestEnemyHealthManager = enemyHealthManagers[i];
+                }
+            }
+        }
+
+        return nearestEnemyHealthManager;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -180,14 +210,21 @@ public class PlayerMotor : MonoBehaviour
 
         if (Input.GetKey(KeyCode.W) && IsGrounded && isSprinting && stamina > 0)
         {
-            animator.SetBool("IsRunning", true);
-            currentSpeed = speed * sprintSpeedMultiplier;
-            DrainStamina();
+            if (stamina > 0)
+            {
+                animator.SetBool("IsRunning", true);
+                currentSpeed = speed * sprintSpeedMultiplier;
+                DrainStamina();
+            }
+            else
+            {
+                animator.SetBool("IsRunning", false);
+            }
         }
         else
         {
             animator.SetBool("IsRunning", false);
-        }
+        }   
 
         // Regenerate stamina when not sprinting
         if (!isSprinting && stamina < 100f)
@@ -195,7 +232,7 @@ public class PlayerMotor : MonoBehaviour
             stamina += staminaRegenRate * Time.deltaTime;
         }
 
-        if (stamina <= 0)
+        if (stamina <= 5)
         {
             currentSpeed = speed;
         }
@@ -344,7 +381,7 @@ public class PlayerMotor : MonoBehaviour
     {
         if (enemyHealthManager != null) // Check if an enemy is in range
         {
-            StartCoroutine(DealMeleeDamageWithDelay(50, 0.7f)); // Change the delay duration (1.0f) as needed
+            StartCoroutine(DealMeleeDamageWithDelay(50, 0.7f));
         }
     }
 

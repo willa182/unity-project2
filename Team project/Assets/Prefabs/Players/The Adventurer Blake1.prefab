@@ -431,7 +431,6 @@ GameObject:
   - component: {fileID: 4734756211216565168}
   - component: {fileID: 4813794714228614620}
   - component: {fileID: 1503016695731789112}
-  - component: {fileID: 4421607658525659633}
   - component: {fileID: 4234462112346572196}
   m_Layer: 8
   m_Name: The Adventurer Blake1
@@ -543,7 +542,6 @@ MonoBehaviour:
   healthSlider: {fileID: 0}
   healthRestoreAmountPrefab1: 25
   healthRestoreAmountPrefab2: 50
-  enemyScript: {fileID: 0}
   damageAmount: 10
 --- !u!114 &7831577021886483293
 MonoBehaviour:
@@ -606,6 +604,7 @@ MonoBehaviour:
   rifleFireRate: 0.1
   pistolParticles: {fileID: 6974987621312338916}
   rifleParticles: {fileID: 5085634929327743130}
+  shotgunParticles: {fileID: 0}
 --- !u!114 &4813794714228614620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -659,18 +658,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSensitivity: 2
   rotationSmoothness: 12
---- !u!114 &4421607658525659633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1745533353730808377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 111012589ada65b44ae6b90a80e03a2f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &4234462112346572196
 BoxCollider:
   m_ObjectHideFlags: 0

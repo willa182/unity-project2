@@ -53,6 +53,7 @@ public class EnemyHealthManager : MonoBehaviour
         soundManager = SoundManager.instance;
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
         if (!isDead && other.CompareTag("Bullet"))
@@ -66,6 +67,7 @@ public class EnemyHealthManager : MonoBehaviour
             Destroy(other.gameObject);
         }
     }
+
 
     // Update is called once per frame
     void Update()
