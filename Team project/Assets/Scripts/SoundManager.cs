@@ -28,6 +28,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource zombieDeath;
     public AudioSource zombieChase;
     public AudioSource zombieAggresive;
+    public AudioSource hardzombieChase;
     public AudioSource jetTriggerTest;//
     public AudioSource distanceTriggerTest;//
 
@@ -124,6 +125,11 @@ public class SoundManager : MonoBehaviour
     public void PlayZombieDeath()
     {
         zombieDeath.Play();
+    }
+
+    public void PlayHardZombieChase()
+    {
+        hardzombieChase.Play();
     }
 
 

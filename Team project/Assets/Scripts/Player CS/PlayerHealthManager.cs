@@ -30,7 +30,7 @@ public class PlayerHealthManager : MonoBehaviour
     private float flashCounter;
     private bool isDead = false;
 
-    public EnemyMelee enemyScript; // Reference to the EnemyMelee script
+    private EnemyMelee enemyScript; // Reference to the EnemyMelee script
     public int damageAmount = 10; // Define the damage amount
 
     private SoundManager soundManager;
