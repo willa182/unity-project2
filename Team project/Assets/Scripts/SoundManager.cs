@@ -31,6 +31,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource hardzombieChase;
     public AudioSource jetTriggerTest;//
     public AudioSource distanceTriggerTest;//
+    
 
     void Awake()
     {
@@ -159,4 +160,5 @@ public class SoundManager : MonoBehaviour
     {
         distanceTriggerTest.Play();
     }
+
 }
