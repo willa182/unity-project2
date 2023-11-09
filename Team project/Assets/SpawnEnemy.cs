@@ -19,29 +19,28 @@ public class SpawnEnemy : MonoBehaviour
 
     private IEnumerator SpawnAllEnemiesAtStart()
     {
-        List<int> spawnedIndices = new List<int>();
+        HashSet<GameObject> spawnedEnemies = new HashSet<GameObject>();
 
         foreach (Transform spawnPoint in spawnPoints)
         {
-            foreach (int index in Enumerable.Range(0, enemyPrefabs.Count))
+            foreach (GameObject enemyPrefab in enemyPrefabs)
             {
-                // Only spawn each enemy prefab once
-                if (!spawnedIndices.Contains(index))
+                if (!spawnedEnemies.Contains(enemyPrefab))
                 {
                     // Spawn the enemy at the selected spawn point
-                    GameObject newEnemy = Instantiate(enemyPrefabs[index], spawnPoint.position, spawnPoint.rotation);
+                    GameObject newEnemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
                     // Get the EnemyHealthManager component of the spawned enemy
                     EnemyHealthManager enemyHealthManager = newEnemy.GetComponent<EnemyHealthManager>();
 
                     // Assign the appropriate health bar based on the enemy prefab
-                    enemyHealthManager.healthBar = GetHealthBarFromCanvas(index);
+                    enemyHealthManager.healthBar = GetHealthBarFromCanvas(enemyPrefabs.IndexOf(enemyPrefab));
 
                     // Disable the health bar at the start
                     enemyHealthManager.healthBar.gameObject.SetActive(false);
 
-                    // Mark the index as spawned
-                    spawnedIndices.Add(index);
+                    // Mark the enemy as spawned
+                    spawnedEnemies.Add(enemyPrefab);
                 }
             }
         }
@@ -51,7 +50,11 @@ public class SpawnEnemy : MonoBehaviour
 
     private IEnumerator SpawnEnemies()
     {
+        // Spawn all enemies at the start
         yield return StartCoroutine(SpawnAllEnemiesAtStart());
+
+        // Wait for a moment before starting continuous spawning
+        yield return new WaitForSeconds(2f);
 
         while (true)
         {

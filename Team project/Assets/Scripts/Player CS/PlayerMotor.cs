@@ -462,6 +462,10 @@ public class PlayerMotor : MonoBehaviour
         {
             stamina -= staminaDepletionRate * Time.deltaTime;
         }
+        if (animator.GetBool("IsRunningBackwards") && stamina > 0)
+        {
+            stamina -= staminaDepletionRate * Time.deltaTime;
+        }
     }
 
     private void RegenerateStamina()

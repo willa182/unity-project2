@@ -45,7 +45,7 @@ public class VehicleController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (isDriving)
+            if (isDriving || currentGas <= 0)
             {
                 // If already driving, exit the vehicle
                 ExitVehicle();
