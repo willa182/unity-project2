@@ -1638,6 +1638,7 @@ GameObject:
   - component: {fileID: 4124826729693729479}
   - component: {fileID: 1677052713697143976}
   - component: {fileID: 4784913870102274309}
+  - component: {fileID: -1008596248060947422}
   m_Layer: 0
   m_Name: Warzombie F Pedroso
   m_TagString: Enemy
@@ -1809,7 +1810,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5083744566854093714}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 248355b1d1e02134f93418a2e543b0cf, type: 3}
   m_Name: 
@@ -1818,6 +1819,26 @@ MonoBehaviour:
   currentHealth: 0
   flashLength: 0
   healthBar: {fileID: 2516714342971459707, guid: 5a5cbe545f1ca0641bc4d4a22aa133b3, type: 3}
+  healthBarIndex: 6
+  moveSpeed: 5
+  bloodSplashPrefab: {fileID: 4469024040440102862, guid: 860b56054cf46974685db49fb65d9916, type: 3}
+--- !u!114 &-1008596248060947422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5083744566854093714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82389b1ecfcc574ba9bedaff6b80465, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 100
+  currentHealth: 0
+  flashLength: 0
+  healthBar: {fileID: 0}
+  healthBarIndex: 6
   moveSpeed: 5
   bloodSplashPrefab: {fileID: 4469024040440102862, guid: 860b56054cf46974685db49fb65d9916, type: 3}
 --- !u!1 &5170527069998105714

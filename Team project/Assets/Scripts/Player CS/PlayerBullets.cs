@@ -17,6 +17,17 @@ public class PlayerBullets : MonoBehaviour
 
             Destroy(gameObject); 
         }
+        if (other.CompareTag("Enemy"))
+        {
+            EnemyHealthManager2 enemyHealth = other.gameObject.GetComponent<EnemyHealthManager2>();
+
+            if (enemyHealth != null)
+            {
+                enemyHealth.currentHealth -= damage;
+            }
+
+            Destroy(gameObject);
+        }
         else if (other.CompareTag("Object"))
         {
             Destroy(gameObject);

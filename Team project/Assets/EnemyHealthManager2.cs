@@ -16,6 +16,7 @@ public class EnemyHealthManager2 : MonoBehaviour
     private Color storedColor;
 
     public Slider healthBar;
+    public int healthBarIndex;//
     private RectTransform sliderRectTransform;
 
     private Transform player;
@@ -52,6 +53,7 @@ public class EnemyHealthManager2 : MonoBehaviour
         ammoDrop = GetComponent<AmmoDrop>();
         soundManager = SoundManager.instance;
     }
+
 
     private void OnTriggerEnter(Collider other)
     {

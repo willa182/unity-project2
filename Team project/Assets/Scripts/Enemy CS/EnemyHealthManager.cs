@@ -16,6 +16,7 @@ public class EnemyHealthManager : MonoBehaviour
     private Color storedColor;
 
     public Slider healthBar;
+    public int healthBarIndex;//
     private RectTransform sliderRectTransform;
 
     private Transform player;

@@ -6,7 +6,6 @@ TagManager:
   tags:
   - EnemyBullet
   - PlayerBullet
-  - Enemy
   - Bullet
   - Ground
   - WeaponPickup
@@ -31,6 +30,7 @@ TagManager:
   - ShotgunAmmo
   - ExitPoint
   - Obstacle
+  - Enemy
   layers:
   - Default
   - TransparentFX
