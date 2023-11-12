@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,38 +6,51 @@ public class VehicleController : MonoBehaviour
 {
     public float maxSpeed = 10f;
     public float acceleration = 1f;
+    public float deceleration = 2f;
+    public float brakingDeceleration = 2f;
     public float rotationSpeed = 100f;
     public float maxGas = 100f;
     public float gasConsumptionRate = 1f;
     public float maxHealth = 100f;
     public float damageAmount = 10f;
 
+    public float currentSpeed;
+    private bool canDrive = false;
+    private bool isWaitingToDrive = false;
+
     private bool isDriving = false;
     private float currentGas;
     private float currentHealth;
     private bool isDamaged = false;
-    private float currentSpeed = 0f;
+    private bool isGrounded = false;
 
     public Slider gasSlider;
     public Slider healthSlider;
+
     public Light[] vehicleLights;
     private bool lightsEnabled = false;
+
+    public Light[] additionalLights;
+    private bool additionalLightsActive = false;
 
     public Transform player;
     public Transform exitPoint;
     private StaticCamera cameraScript;
+    private SoundManager soundManager;
 
     void Start()
     {
-          currentGas = maxGas;
-          currentHealth = maxHealth;
-          gasSlider.maxValue = maxGas;
-          gasSlider.value = currentGas;
-          healthSlider.maxValue = maxHealth;
-          healthSlider.value = currentHealth;
+        currentGas = maxGas;
+        currentHealth = maxHealth;
+        gasSlider.maxValue = maxGas;
+        gasSlider.value = currentGas;
+        healthSlider.maxValue = maxHealth;
+        healthSlider.value = currentHealth;
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
         cameraScript = GameObject.FindObjectOfType<StaticCamera>();
+
+        soundManager = SoundManager.instance;
     }
 
     void Update()
@@ -47,15 +59,14 @@ public class VehicleController : MonoBehaviour
         {
             if (isDriving || currentGas <= 0)
             {
-                // If already driving, exit the vehicle
                 ExitVehicle();
             }
             else
             {
-                // If not driving, check if the player is near the exit point and enter the vehicle
-                if (IsPlayerNearExitPoint())
+                if (IsPlayerNearExitPoint() && !isWaitingToDrive)
                 {
                     EnterVehicle();
+                    StartCoroutine(StartDrivingDelay());
                 }
             }
         }
@@ -67,48 +78,109 @@ public class VehicleController : MonoBehaviour
 
         if (isDriving)
         {
-            float translation = Input.GetAxis("Vertical");
-            float rotation = Input.GetAxis("Horizontal") * rotationSpeed;
+            isGrounded = Physics.Raycast(transform.position, Vector3.down, 0.1f);
 
-            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
-            translation *= currentSpeed * Time.deltaTime;
-
-            transform.Translate(0, 0, translation);
-            transform.Rotate(0, rotation, 0);
-
-            currentGas -= gasConsumptionRate * Time.deltaTime;
-            gasSlider.value = currentGas;
-
-            if (currentGas <= 0)
+            if (isGrounded)
             {
-                isDriving = false;
+                HandleDrivingInput();
+            }
+            else
+            {
+                currentSpeed = 0f;
+            }
+        }
+        else
+        {
+            currentSpeed = 0f;
+        }
+    }
+
+    void HandleDrivingInput()
+    {
+        float translation = Input.GetAxis("Vertical");
+        float rotation = 0f;
+
+        if (Mathf.Abs(translation) > 0.1f || Mathf.Abs(currentSpeed) > 0.1f)
+        {
+            rotation = Input.GetAxis("Horizontal") * rotationSpeed;
+        }
+
+        if (translation > 0.1f)
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
+            SetAdditionalLights(false);
+        }
+        else if (translation < -0.1f)
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, -maxSpeed, brakingDeceleration * Time.deltaTime);
+            SetAdditionalLights(true);
+        }
+        else
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.deltaTime);
+            SetAdditionalLights(false);
+        }
+
+        translation = currentSpeed * Time.deltaTime;
+        transform.Translate(0, 0, translation);
+
+        if (currentSpeed != 0)
+        {
+            transform.Rotate(0, rotation, 0);
+        }
+
+        currentGas -= gasConsumptionRate * Time.deltaTime;
+        gasSlider.value = currentGas;
+
+        if (currentGas <= 0)
+        {
+            isDriving = false;
+            SetAdditionalLights(false);
+        }
+    }
+
+    IEnumerator StartDrivingDelay()
+    {
+        isWaitingToDrive = true;
+        soundManager.PlayCarStartUpSound();
+        yield return new WaitForSeconds(4f);
+        canDrive = true;
+        isDriving = true;
+        gasSlider.gameObject.SetActive(true);
+        healthSlider.gameObject.SetActive(true);
+        isWaitingToDrive = false;
+    }
+
+    private void SetAdditionalLights(bool active)
+    {
+        if (additionalLights != null && additionalLights.Length > 0)
+        {
+            additionalLightsActive = active;
+
+            foreach (Light light in additionalLights)
+            {
+                light.enabled = additionalLightsActive;
             }
         }
     }
 
     private bool IsPlayerNearExitPoint()
     {
-        // Calculate the distance between the player and the exit point
         float distance = Vector3.Distance(player.position, transform.position);
-
-        // Adjust this distance threshold as needed
         float interactDistanceThreshold = 7.0f;
-
         return distance <= interactDistanceThreshold;
     }
 
     private void EnterVehicle()
     {
-        // Set the player's position to the exit point
         player.position = exitPoint.position;
 
-        // Notify the camera script that the player is now in this vehicle
         if (cameraScript != null)
         {
             cameraScript.SetCurrentVehicle(transform);
         }
 
-        player.gameObject.SetActive(false); // Hide the player GameObject
+        player.gameObject.SetActive(false);
         isDriving = true;
         gasSlider.gameObject.SetActive(true);
         healthSlider.gameObject.SetActive(true);
@@ -116,9 +188,10 @@ public class VehicleController : MonoBehaviour
 
     private void ExitVehicle()
     {
-        player.position = GetExitPointPosition(); // Set player's position to the exit point
-        player.gameObject.SetActive(true); // Show the player GameObject
+        player.position = GetExitPointPosition();
+        player.gameObject.SetActive(true);
         isDriving = false;
+        canDrive = false; // Reset the flag when exiting the vehicle
         gasSlider.gameObject.SetActive(false);
         healthSlider.gameObject.SetActive(false);
 
@@ -138,16 +211,14 @@ public class VehicleController : MonoBehaviour
         else
         {
             Debug.LogWarning("ExitPoint transform not found on the vehicle.");
-            return transform.position; // Fallback to the vehicle's position
+            return transform.position;
         }
     }
 
     private void ToggleVehicleLights()
     {
-        // Check if there are lights on the vehicle
         if (vehicleLights != null && vehicleLights.Length > 0)
         {
-            // Toggle the lights
             lightsEnabled = !lightsEnabled;
 
             foreach (Light light in vehicleLights)

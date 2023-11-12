@@ -29,6 +29,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource zombieChase;
     public AudioSource zombieAggresive;
     public AudioSource hardzombieChase;
+    public AudioSource carStartup;
     public AudioSource jetTriggerTest;//
     public AudioSource distanceTriggerTest;//
     
@@ -148,6 +149,11 @@ public class SoundManager : MonoBehaviour
 
         int randomIndex = Random.Range(0, zombieSounds.Length);
         zombieSounds[randomIndex].Play();
+    }
+
+    public void PlayCarStartUpSound()
+    {
+        carStartup.Play();
     }
 
 
